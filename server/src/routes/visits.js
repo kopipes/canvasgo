@@ -100,7 +100,7 @@ router.get('/stats/summary', requireAuth, (req, res) => {
   const row = db.prepare(`
     SELECT
       COUNT(*) as total,
-      SUM(CASE WHEN status='propose' THEN 1 ELSE 0 END) as interested,
+      SUM(CASE WHEN interested=1 THEN 1 ELSE 0 END) as interested,
       SUM(CASE WHEN status='follow_up' THEN 1 ELSE 0 END) as follow_up,
       SUM(CASE WHEN status='closing' THEN 1 ELSE 0 END) as closed,
       SUM(CASE WHEN date(created_at) >= date('now','-7 days') THEN 1 ELSE 0 END) as this_week
