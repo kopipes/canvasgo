@@ -83,13 +83,6 @@ export default function LoginPage() {
               {loading ? 'Masuk...' : 'Masuk'}
             </button>
           </form>
-
-          <div className="mt-4 text-xs text-gray-400 space-y-1">
-            <p className="text-center font-medium text-gray-500">Demo accounts:</p>
-            <p>Admin: admin@canvasgo.app / admin123</p>
-            <p>Manager: manager@canvasgo.app / manager123</p>
-            <p>Rep: rep@canvasgo.app / rep123</p>
-          </div>
         </div>
       </div>
     </div>
