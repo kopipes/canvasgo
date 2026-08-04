@@ -28,7 +28,6 @@ export default function BottomNav({ role }: Props) {
     { to: '/manager/visits', label: 'Semua Visit', icon: List, end: false },
     { to: '/admin/products', label: 'Produk', icon: Package, end: false },
     { to: '/admin/users', label: 'Pengguna', icon: Users, end: false },
-    { to: '/profile', label: 'Profil', icon: UserCircle, end: false },
   ]
 
   const links = role === 'rep' ? repLinks : role === 'manager' ? managerLinks : adminLinks
