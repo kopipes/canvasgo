@@ -5,6 +5,7 @@ import { getVisits } from '@/db'
 import { Visit } from '@/types'
 import { STATUS_LABELS, STATUS_COLORS, formatDateTime } from '@/utils'
 import { Search, ChevronRight, MapPin } from 'lucide-react'
+import UserBadge from '@/components/UserBadge'
 
 export default function MyActivitiesPage() {
   const { user } = useAuth()
@@ -23,8 +24,12 @@ export default function MyActivitiesPage() {
   }, [user, search])
 
   return (
-    <div className="px-4 pt-6">
-      <h1 className="text-2xl font-black text-gray-900 mb-4">Aktivitas Saya</h1>
+    <div className="pb-4">
+      <div className="px-4 pt-6">
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-black text-gray-900">Aktivitas Saya</h1>
+        <UserBadge />
+      </div>
 
       {/* Search */}
       <div className="relative mb-4">
@@ -74,6 +79,7 @@ export default function MyActivitiesPage() {
           ))}
         </div>
       )}
+      </div>
     </div>
   )
 }

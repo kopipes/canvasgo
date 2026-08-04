@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { getDashboardStats } from '@/db'
 import { PlusCircle, TrendingUp, Clock, CheckCircle, AlertCircle } from 'lucide-react'
+import UserBadge from '@/components/UserBadge'
 
 interface Stats {
   total: number
@@ -24,11 +25,15 @@ export default function RepDashboard() {
   const today = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 
   return (
-    <div className="px-4 pt-6 pb-4">
+    <div className="pb-4">
+      <div className="px-4 pt-6">
       {/* Header */}
-      <div className="mb-6">
-        <p className="text-sm text-gray-500">{today}</p>
-        <h1 className="text-2xl font-black text-gray-900">Halo, {user?.name.split(' ')[0]} 👋</h1>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <p className="text-sm text-gray-500">{today}</p>
+          <h1 className="text-2xl font-black text-gray-900">Halo, {user?.name.split(' ')[0]} 👋</h1>
+        </div>
+        <UserBadge />
       </div>
 
       {/* Quick action */}
@@ -71,6 +76,7 @@ export default function RepDashboard() {
           </div>
           <p className="text-3xl font-black text-gray-900">{stats.follow_up}</p>
         </div>
+      </div>
       </div>
     </div>
   )

@@ -93,7 +93,7 @@ export default function NewVisitPage() {
         lat: form.lat,
         lng: form.lng,
       })
-      navigate('/rep/activities', { replace: true })
+      navigate(user.role === 'admin' || user.role === 'manager' ? '/manager/visits' : '/rep/activities', { replace: true })
     } catch (err) {
       console.error(err)
       alert('Gagal menyimpan. Coba lagi.')

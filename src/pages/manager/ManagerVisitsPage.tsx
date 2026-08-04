@@ -3,7 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import { getVisits, getUsers } from '@/db'
 import { Visit, User, VisitStatus } from '@/types'
 import { STATUS_LABELS, STATUS_COLORS, VISIT_STATUSES, formatDateTime } from '@/utils'
-import { Search, ChevronRight, MapPin, Filter } from 'lucide-react'
+import { Search, ChevronRight, MapPin, Filter, ChevronLeft } from 'lucide-react'
+import UserBadge from '@/components/UserBadge'
+
+const PAGE_SIZE = 10
 
 export default function ManagerVisitsPage() {
   const navigate = useNavigate()
@@ -16,6 +19,7 @@ export default function ManagerVisitsPage() {
   const [filterFrom, setFilterFrom] = useState('')
   const [filterTo, setFilterTo] = useState('')
   const [showFilters, setShowFilters] = useState(false)
+  const [page, setPage] = useState(1)
 
   useEffect(() => {
     getUsers().then((u) => setReps(u.filter((x) => x.role === 'rep')))
@@ -23,6 +27,7 @@ export default function ManagerVisitsPage() {
 
   useEffect(() => {
     setLoading(true)
+    setPage(1)
     getVisits({
       userId: filterRep || undefined,
       status: filterStatus || undefined,
@@ -36,20 +41,26 @@ export default function ManagerVisitsPage() {
   }, [search, filterRep, filterStatus, filterFrom, filterTo])
 
   const activeFilters = [filterRep, filterStatus, filterFrom, filterTo].filter(Boolean).length
+  const totalPages = Math.max(1, Math.ceil(visits.length / PAGE_SIZE))
+  const paged = visits.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   return (
-    <div className="px-4 pt-6">
+    <div className="pb-4">
+      <div className="px-4 pt-6">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-black text-gray-900">Semua Visit</h1>
-        <button
-          onClick={() => setShowFilters((v) => !v)}
-          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium border transition-colors ${
-            activeFilters > 0 ? 'bg-primary-600 text-white border-primary-600' : 'bg-white text-gray-600 border-gray-300'
-          }`}
-        >
-          <Filter size={15} />
-          Filter{activeFilters > 0 ? ` (${activeFilters})` : ''}
-        </button>
+        <div className="flex items-center gap-2">
+          <UserBadge />
+          <button
+            onClick={() => setShowFilters((v) => !v)}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium border transition-colors ${
+              activeFilters > 0 ? 'bg-primary-600 text-white border-primary-600' : 'bg-white text-gray-600 border-gray-300'
+            }`}
+          >
+            <Filter size={15} />
+            Filter{activeFilters > 0 ? ` (${activeFilters})` : ''}
+          </button>
+        </div>
       </div>
 
       {/* Search */}
@@ -110,8 +121,11 @@ export default function ManagerVisitsPage() {
         </div>
       ) : (
         <div className="space-y-3 pb-4">
-          <p className="text-sm text-gray-500">{visits.length} kunjungan ditemukan</p>
-          {visits.map((v) => (
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-gray-500">{visits.length} kunjungan ditemukan</p>
+            <p className="text-sm text-gray-500">Hal. {page}/{totalPages}</p>
+          </div>
+          {paged.map((v) => (
             <button
               key={v.id}
               className="card w-full text-left flex items-center gap-3"
@@ -131,12 +145,49 @@ export default function ManagerVisitsPage() {
                   <span className={`badge ${STATUS_COLORS[v.status]}`}>{STATUS_LABELS[v.status]}</span>
                   <span className="text-xs text-gray-400">{formatDateTime(v.created_at)}</span>
                 </div>
+                {(() => { try { const p: string[] = JSON.parse(v.products); return p.length > 0 ? (
+                  <p className="text-xs text-primary-600 truncate mt-0.5">{p.join(' · ')}</p>
+                ) : null } catch { return null } })()}
               </div>
               <ChevronRight size={18} className="text-gray-300 flex-shrink-0" />
             </button>
           ))}
+
+          {/* Pagination controls */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 pt-2">
+              <button
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="p-2 rounded-xl border border-gray-200 disabled:opacity-30 text-gray-600"
+              >
+                <ChevronLeft size={18} />
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                <button
+                  key={p}
+                  onClick={() => setPage(p)}
+                  className={`w-9 h-9 rounded-xl text-sm font-semibold border transition-colors ${
+                    p === page
+                      ? 'bg-primary-600 text-white border-primary-600'
+                      : 'bg-white text-gray-600 border-gray-200'
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
+              <button
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="p-2 rounded-xl border border-gray-200 disabled:opacity-30 text-gray-600"
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
+          )}
         </div>
       )}
+      </div>
     </div>
   )
 }

@@ -24,7 +24,7 @@ function RoleRouter() {
 
   if (!user) return <Navigate to="/login" replace />
 
-  if (user.role === 'admin') return <Navigate to="/admin/products" replace />
+  if (user.role === 'admin') return <Navigate to="/manager" replace />
   if (user.role === 'manager') return <Navigate to="/manager" replace />
   return <Navigate to="/rep" replace />
 }

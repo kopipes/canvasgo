@@ -3,6 +3,7 @@ import { getUsers, createUser, updateUser, deleteUser } from '@/db'
 import { User, Role } from '@/types'
 import { Plus, Pencil, Trash2, Check, X, Users } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
+import UserBadge from '@/components/UserBadge'
 
 const ROLES: { value: Role; label: string }[] = [
   { value: 'rep', label: 'Sales Rep' },
@@ -72,13 +73,16 @@ export default function AdminUsers() {
           <Users size={22} className="text-primary-600" />
           <h1 className="text-2xl font-black text-gray-900">Pengguna</h1>
         </div>
-        <button
-          onClick={() => setShowAdd((v) => !v)}
-          className="bg-primary-600 text-white px-3 py-2 rounded-xl flex items-center gap-1 text-sm font-semibold"
-        >
-          <Plus size={16} />
-          Tambah
-        </button>
+        <div className="flex items-center gap-2">
+          <UserBadge />
+          <button
+            onClick={() => setShowAdd((v) => !v)}
+            className="bg-primary-600 text-white px-3 py-2 rounded-xl flex items-center gap-1 text-sm font-semibold"
+          >
+            <Plus size={16} />
+            Tambah
+          </button>
+        </div>
       </div>
       <p className="text-sm text-gray-500 mb-5">Kelola akun pengguna</p>
 

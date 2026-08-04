@@ -3,6 +3,7 @@ import { useAuth } from '@/context/AuthContext'
 import { getDashboardStats, getUsers } from '@/db'
 import { User } from '@/types'
 import { TrendingUp, Clock, CheckCircle, Users, AlertCircle } from 'lucide-react'
+import UserBadge from '@/components/UserBadge'
 
 interface Stats {
   total: number
@@ -32,8 +33,12 @@ export default function ManagerDashboard() {
   }, [user])
 
   return (
-    <div className="px-4 pt-6 pb-4">
-      <h1 className="text-2xl font-black text-gray-900 mb-1">Dashboard</h1>
+    <div className="pb-4">
+      <div className="px-4 pt-6">
+      <div className="flex items-center justify-between mb-1">
+        <h1 className="text-2xl font-black text-gray-900">Dashboard</h1>
+        <UserBadge />
+      </div>
       <p className="text-sm text-gray-500 mb-5">Ringkasan aktivitas tim</p>
 
       {/* Overall stats */}
@@ -100,6 +105,7 @@ export default function ManagerDashboard() {
             </div>
           )
         })}
+      </div>
       </div>
     </div>
   )

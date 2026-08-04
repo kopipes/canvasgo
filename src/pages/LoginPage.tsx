@@ -84,9 +84,12 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="text-center text-xs text-gray-400 mt-4">
-            Demo: rep@canvasgo.app / rep123
-          </p>
+          <div className="mt-4 text-xs text-gray-400 space-y-1">
+            <p className="text-center font-medium text-gray-500">Demo accounts:</p>
+            <p>Admin: admin@canvasgo.app / admin123</p>
+            <p>Manager: manager@canvasgo.app / manager123</p>
+            <p>Rep: rep@canvasgo.app / rep123</p>
+          </div>
         </div>
       </div>
     </div>

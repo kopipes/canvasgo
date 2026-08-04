@@ -1,117 +1,189 @@
-import initSqlJs, { Database } from 'sql.js'
 import { User, Visit, Product, Role, VisitStatus } from '@/types'
 
-const DB_KEY = 'canvasgo_db'
+// ─── Storage keys ────────────────────────────────────────────────────────────
+const KEYS = {
+  users: 'cg_users',
+  visits: 'cg_visits',
+  products: 'cg_products',
+  seq: 'cg_seq',
+}
 
-let db: Database | null = null
+// ─── Generic helpers ─────────────────────────────────────────────────────────
+function load<T>(key: string): T[] {
+  try {
+    return JSON.parse(localStorage.getItem(key) ?? '[]') as T[]
+  } catch {
+    return []
+  }
+}
 
-async function getDB(): Promise<Database> {
-  if (db) return db
+function save<T>(key: string, data: T[]): void {
+  localStorage.setItem(key, JSON.stringify(data))
+}
 
-  const SQL = await initSqlJs({
-    locateFile: (file: string) => `/${file}`,
-  })
+function nextId(entity: string): number {
+  const seqs: Record<string, number> = JSON.parse(localStorage.getItem(KEYS.seq) ?? '{}')
+  seqs[entity] = (seqs[entity] ?? 0) + 1
+  localStorage.setItem(KEYS.seq, JSON.stringify(seqs))
+  return seqs[entity]
+}
 
-  const saved = localStorage.getItem(DB_KEY)
-  if (saved) {
-    const buf = Uint8Array.from(atob(saved), (c) => c.charCodeAt(0))
-    db = new SQL.Database(buf)
-  } else {
-    db = new SQL.Database()
-    migrate(db)
-    persist(db)
+// ─── Seed on first run ───────────────────────────────────────────────────────
+function seedIfEmpty() {
+  const users = load<User>(KEYS.users)
+  if (users.length === 0) {
+    const seeded: User[] = [
+      { id: 1, name: 'Admin',         email: 'admin@canvasgo.app',   password_hash: 'admin123',   role: 'admin',   created_at: new Date().toISOString() },
+      { id: 2, name: 'Manager Demo',  email: 'manager@canvasgo.app', password_hash: 'manager123', role: 'manager', created_at: new Date().toISOString() },
+      { id: 3, name: 'Sales Rep Demo',email: 'rep@canvasgo.app',     password_hash: 'rep123',     role: 'rep',     created_at: new Date().toISOString() },
+    ]
+    save(KEYS.users, seeded)
+    const seqs: Record<string, number> = { users: 3 }
+    localStorage.setItem(KEYS.seq, JSON.stringify(seqs))
   }
 
-  return db
+  const products = load<Product>(KEYS.products)
+  if (products.length === 0) {
+    const seeded: Product[] = [
+      { id: 1, name: 'Kontakami',            active: 1, created_at: new Date().toISOString() },
+      { id: 2, name: 'Reservation System',   active: 1, created_at: new Date().toISOString() },
+      { id: 3, name: 'POS Integration',      active: 1, created_at: new Date().toISOString() },
+      { id: 4, name: 'Analytics Dashboard',  active: 1, created_at: new Date().toISOString() },
+      { id: 5, name: 'Customer Loyalty',     active: 1, created_at: new Date().toISOString() },
+    ]
+    save(KEYS.products, seeded)
+    const seqs: Record<string, number> = JSON.parse(localStorage.getItem(KEYS.seq) ?? '{}')
+    seqs.products = 5
+    localStorage.setItem(KEYS.seq, JSON.stringify(seqs))
+  }
+
+  const visits = load<Visit>(KEYS.visits)
+  if (visits.length === 0) {
+    const now = new Date()
+    const daysAgo = (d: number) => new Date(now.getTime() - d * 86400000).toISOString()
+    const seeded: Visit[] = [
+      {
+        id: 1, user_id: 3, location_name: 'Apollo Wu Artisan', pic_name: 'Ibu Stephany',
+        pic_phone: '081355555312', pic_email: 'management@apolloartisan.com',
+        products: JSON.stringify(['Kontakami', 'Reservation System']),
+        existing_system: 'Chope', website: 'https://apollowuartisan.com',
+        status: 'follow_up', next_follow_up: new Date(now.getTime() + 3 * 86400000).toISOString().slice(0, 10),
+        notes: 'Diminta kirim Company Profile dahulu ke email.', photo: '', lat: null, lng: null,
+        created_at: daysAgo(1), synced: 1,
+      },
+      {
+        id: 2, user_id: 3, location_name: 'Sushi Tei Grand Indonesia', pic_name: 'Bapak Rudi',
+        pic_phone: '08119876543', pic_email: 'rudi@sushitei.co.id',
+        products: JSON.stringify(['POS Integration', 'Analytics Dashboard']),
+        existing_system: 'Moka POS', website: 'https://sushitei.co.id',
+        status: 'interested', next_follow_up: new Date(now.getTime() + 7 * 86400000).toISOString().slice(0, 10),
+        notes: 'Sangat tertarik dengan integrasi POS. Minta demo minggu depan.', photo: '', lat: null, lng: null,
+        created_at: daysAgo(2), synced: 1,
+      },
+      {
+        id: 3, user_id: 3, location_name: 'Kopi Kenangan Sudirman', pic_name: 'Ibu Dewi',
+        pic_phone: '08561234567', pic_email: 'dewi@kopikenangan.com',
+        products: JSON.stringify(['Customer Loyalty', 'Kontakami']),
+        existing_system: '-', website: 'https://kopikenangan.com',
+        status: 'not_interested', next_follow_up: '',
+        notes: 'Sudah pakai sistem internal sendiri. Tidak ada budget tahun ini.', photo: '', lat: null, lng: null,
+        created_at: daysAgo(3), synced: 1,
+      },
+      {
+        id: 4, user_id: 3, location_name: 'Pizza Hut Delivery Kemang', pic_name: 'Bapak Hendra',
+        pic_phone: '08121111222', pic_email: 'hendra@phd.co.id',
+        products: JSON.stringify(['Reservation System']),
+        existing_system: 'Manual WhatsApp', website: '',
+        status: 'closed', next_follow_up: '',
+        notes: 'Deal! Kontrak ditandatangani. Onboarding jadwal minggu depan.', photo: '', lat: null, lng: null,
+        created_at: daysAgo(5), synced: 1,
+      },
+      {
+        id: 5, user_id: 3, location_name: 'Warung Padang Sederhana', pic_name: 'Bapak Andi',
+        pic_phone: '08523334444', pic_email: '',
+        products: JSON.stringify(['Kontakami']),
+        existing_system: '-', website: '',
+        status: 'no_contact', next_follow_up: '',
+        notes: 'Pemilik tidak ada di tempat. Coba lagi besok.', photo: '', lat: null, lng: null,
+        created_at: daysAgo(6), synced: 1,
+      },
+    ]
+    save(KEYS.visits, seeded)
+    const seqs: Record<string, number> = JSON.parse(localStorage.getItem(KEYS.seq) ?? '{}')
+    seqs.visits = 5
+    localStorage.setItem(KEYS.seq, JSON.stringify(seqs))
+  }
 }
 
-function persist(database: Database) {
-  const data = database.export()
-  const b64 = btoa(String.fromCharCode(...Array.from(data)))
-  localStorage.setItem(DB_KEY, b64)
+const DB_VERSION = '3'
+const VERSION_KEY = 'cg_version'
+
+// Clear stale data from old sql.js era
+if (localStorage.getItem(VERSION_KEY) !== DB_VERSION) {
+  Object.values(KEYS).forEach(k => localStorage.removeItem(k))
+  localStorage.removeItem(VERSION_KEY)
+  localStorage.setItem(VERSION_KEY, DB_VERSION)
 }
 
-function migrate(database: Database) {
-  database.run(`
-    CREATE TABLE IF NOT EXISTS users (
-      id            INTEGER PRIMARY KEY AUTOINCREMENT,
-      name          TEXT NOT NULL,
-      email         TEXT UNIQUE NOT NULL,
-      password_hash TEXT NOT NULL,
-      role          TEXT NOT NULL DEFAULT 'rep',
-      created_at    TEXT NOT NULL DEFAULT (datetime('now'))
-    );
+// Run seed immediately
+seedIfEmpty()
 
-    CREATE TABLE IF NOT EXISTS products (
-      id         INTEGER PRIMARY KEY AUTOINCREMENT,
-      name       TEXT UNIQUE NOT NULL,
-      active     INTEGER NOT NULL DEFAULT 1,
-      created_at TEXT NOT NULL DEFAULT (datetime('now'))
-    );
 
-    CREATE TABLE IF NOT EXISTS visits (
-      id              INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id         INTEGER NOT NULL,
-      location_name   TEXT NOT NULL,
-      pic_name        TEXT NOT NULL,
-      pic_phone       TEXT NOT NULL DEFAULT '',
-      pic_email       TEXT NOT NULL DEFAULT '',
-      products        TEXT NOT NULL DEFAULT '[]',
-      existing_system TEXT NOT NULL DEFAULT '',
-      website         TEXT NOT NULL DEFAULT '',
-      status          TEXT NOT NULL DEFAULT 'follow_up',
-      next_follow_up  TEXT NOT NULL DEFAULT '',
-      notes           TEXT NOT NULL DEFAULT '',
-      photo           TEXT NOT NULL DEFAULT '',
-      lat             REAL,
-      lng             REAL,
-      created_at      TEXT NOT NULL DEFAULT (datetime('now')),
-      synced          INTEGER NOT NULL DEFAULT 1,
-      FOREIGN KEY (user_id) REFERENCES users(id)
-    );
-  `)
-
-  // Seed default admin user (password: admin123)
-  database.run(`
-    INSERT OR IGNORE INTO users (name, email, password_hash, role)
-    VALUES
-      ('Admin', 'admin@canvasgo.app', 'admin123', 'admin'),
-      ('Manager Demo', 'manager@canvasgo.app', 'manager123', 'manager'),
-      ('Sales Rep Demo', 'rep@canvasgo.app', 'rep123', 'rep');
-  `)
-
-  // Seed default products
-  database.run(`
-    INSERT OR IGNORE INTO products (name) VALUES
-      ('Kontakami'),
-      ('Reservation System'),
-      ('POS Integration'),
-      ('Analytics Dashboard'),
-      ('Customer Loyalty');
-  `)
-}
-
-// --- AUTH ---
-
+// ─── AUTH ────────────────────────────────────────────────────────────────────
 export async function loginUser(email: string, password: string): Promise<User | null> {
-  const database = await getDB()
-  const result = database.exec(
-    `SELECT * FROM users WHERE email = '${email.replace(/'/g, "''")}' AND password_hash = '${password.replace(/'/g, "''")}' LIMIT 1`
-  )
-  if (!result.length || !result[0].values.length) return null
-  const [row] = result[0].values
-  const cols = result[0].columns
-  return rowToUser(cols, row as (string | number)[])
+  const users = load<User>(KEYS.users)
+  return users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password_hash === password) ?? null
 }
 
-function rowToUser(cols: string[], row: (string | number)[]): User {
-  const obj: Record<string, string | number> = {}
-  cols.forEach((c, i) => (obj[c] = row[i]))
-  return obj as unknown as User
+// ─── USERS ───────────────────────────────────────────────────────────────────
+export async function getUsers(): Promise<User[]> {
+  return load<User>(KEYS.users).sort((a, b) => a.name.localeCompare(b.name))
 }
 
-// --- VISITS ---
+export async function createUser(name: string, email: string, password: string, role: Role): Promise<void> {
+  const users = load<User>(KEYS.users)
+  users.push({ id: nextId('users'), name, email, password_hash: password, role, created_at: new Date().toISOString() })
+  save(KEYS.users, users)
+}
 
+export async function updateUser(id: number, name: string, email: string, role: Role, password?: string): Promise<void> {
+  const users = load<User>(KEYS.users)
+  const idx = users.findIndex(u => u.id === id)
+  if (idx === -1) return
+  users[idx] = { ...users[idx], name, email, role, ...(password ? { password_hash: password } : {}) }
+  save(KEYS.users, users)
+}
+
+export async function deleteUser(id: number): Promise<void> {
+  save(KEYS.users, load<User>(KEYS.users).filter(u => u.id !== id))
+}
+
+// ─── PRODUCTS ────────────────────────────────────────────────────────────────
+export async function getProducts(activeOnly = true): Promise<Product[]> {
+  const all = load<Product>(KEYS.products)
+  return (activeOnly ? all.filter(p => p.active === 1) : all).sort((a, b) => a.name.localeCompare(b.name))
+}
+
+export async function createProduct(name: string): Promise<void> {
+  const products = load<Product>(KEYS.products)
+  if (products.find(p => p.name.toLowerCase() === name.toLowerCase())) return
+  products.push({ id: nextId('products'), name, active: 1, created_at: new Date().toISOString() })
+  save(KEYS.products, products)
+}
+
+export async function updateProduct(id: number, name: string, active: number): Promise<void> {
+  const products = load<Product>(KEYS.products)
+  const idx = products.findIndex(p => p.id === id)
+  if (idx === -1) return
+  products[idx] = { ...products[idx], name, active }
+  save(KEYS.products, products)
+}
+
+export async function deleteProduct(id: number): Promise<void> {
+  save(KEYS.products, load<Product>(KEYS.products).filter(p => p.id !== id))
+}
+
+// ─── VISITS ──────────────────────────────────────────────────────────────────
 export async function getVisits(filters?: {
   userId?: number
   status?: VisitStatus | ''
@@ -119,184 +191,71 @@ export async function getVisits(filters?: {
   dateTo?: string
   search?: string
 }): Promise<Visit[]> {
-  const database = await getDB()
-  const conditions: string[] = []
+  const users = load<User>(KEYS.users)
+  let visits = load<Visit>(KEYS.visits).map(v => ({
+    ...v,
+    user_name: users.find(u => u.id === v.user_id)?.name ?? '',
+  }))
 
-  if (filters?.userId) conditions.push(`v.user_id = ${filters.userId}`)
-  if (filters?.status) conditions.push(`v.status = '${filters.status}'`)
-  if (filters?.dateFrom) conditions.push(`date(v.created_at) >= '${filters.dateFrom}'`)
-  if (filters?.dateTo) conditions.push(`date(v.created_at) <= '${filters.dateTo}'`)
+  if (filters?.userId) visits = visits.filter(v => v.user_id === filters.userId)
+  if (filters?.status) visits = visits.filter(v => v.status === filters.status)
+  if (filters?.dateFrom) visits = visits.filter(v => v.created_at.slice(0, 10) >= filters.dateFrom!)
+  if (filters?.dateTo)   visits = visits.filter(v => v.created_at.slice(0, 10) <= filters.dateTo!)
   if (filters?.search) {
-    const s = filters.search.replace(/'/g, "''")
-    conditions.push(`(v.location_name LIKE '%${s}%' OR v.pic_name LIKE '%${s}%' OR v.notes LIKE '%${s}%')`)
+    const s = filters.search.toLowerCase()
+    visits = visits.filter(v =>
+      v.location_name.toLowerCase().includes(s) ||
+      v.pic_name.toLowerCase().includes(s) ||
+      v.notes.toLowerCase().includes(s)
+    )
   }
 
-  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''
-  const result = database.exec(`
-    SELECT v.*, u.name as user_name
-    FROM visits v
-    LEFT JOIN users u ON v.user_id = u.id
-    ${where}
-    ORDER BY v.created_at DESC
-  `)
-
-  if (!result.length) return []
-  const { columns, values } = result[0]
-  return values.map((row) => {
-    const obj: Record<string, unknown> = {}
-    columns.forEach((c, i) => (obj[c] = row[i]))
-    return obj as unknown as Visit
-  })
+  return visits.sort((a, b) => b.created_at.localeCompare(a.created_at))
 }
 
 export async function getVisitById(id: number): Promise<Visit | null> {
-  const database = await getDB()
-  const result = database.exec(`
-    SELECT v.*, u.name as user_name
-    FROM visits v
-    LEFT JOIN users u ON v.user_id = u.id
-    WHERE v.id = ${id} LIMIT 1
-  `)
-  if (!result.length || !result[0].values.length) return null
-  const { columns, values } = result[0]
-  const obj: Record<string, unknown> = {}
-  columns.forEach((c, i) => (obj[c] = values[0][i]))
-  return obj as unknown as Visit
+  const users = load<User>(KEYS.users)
+  const visit = load<Visit>(KEYS.visits).find(v => v.id === id)
+  if (!visit) return null
+  return { ...visit, user_name: users.find(u => u.id === visit.user_id)?.name ?? '' }
 }
 
 export async function createVisit(visit: Omit<Visit, 'id' | 'created_at' | 'synced' | 'user_name'>): Promise<number> {
-  const database = await getDB()
-  database.run(
-    `INSERT INTO visits (user_id, location_name, pic_name, pic_phone, pic_email, products, existing_system, website, status, next_follow_up, notes, photo, lat, lng, synced)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
-    [
-      visit.user_id,
-      visit.location_name,
-      visit.pic_name,
-      visit.pic_phone,
-      visit.pic_email,
-      visit.products,
-      visit.existing_system,
-      visit.website,
-      visit.status,
-      visit.next_follow_up,
-      visit.notes,
-      visit.photo,
-      visit.lat ?? null,
-      visit.lng ?? null,
-    ]
-  )
-  persist(database)
-  const res = database.exec('SELECT last_insert_rowid() as id')
-  return res[0].values[0][0] as number
+  const visits = load<Visit>(KEYS.visits)
+  const id = nextId('visits')
+  visits.push({ ...visit, id, created_at: new Date().toISOString(), synced: 1 })
+  save(KEYS.visits, visits)
+  return id
 }
 
-export async function updateVisit(id: number, visit: Partial<Omit<Visit, 'id' | 'user_id' | 'created_at'>>): Promise<void> {
-  const database = await getDB()
-  const fields = Object.entries(visit)
-    .map(([k, v]) => `${k} = ${v === null ? 'NULL' : `'${String(v).replace(/'/g, "''")}'`}`)
-    .join(', ')
-  database.run(`UPDATE visits SET ${fields} WHERE id = ${id}`)
-  persist(database)
+export async function updateVisit(id: number, patch: Partial<Omit<Visit, 'id' | 'user_id' | 'created_at'>>): Promise<void> {
+  const visits = load<Visit>(KEYS.visits)
+  const idx = visits.findIndex(v => v.id === id)
+  if (idx === -1) return
+  visits[idx] = { ...visits[idx], ...patch }
+  save(KEYS.visits, visits)
 }
 
 export async function deleteVisit(id: number): Promise<void> {
-  const database = await getDB()
-  database.run(`DELETE FROM visits WHERE id = ${id}`)
-  persist(database)
+  save(KEYS.visits, load<Visit>(KEYS.visits).filter(v => v.id !== id))
 }
 
-// --- PRODUCTS ---
-
-export async function getProducts(activeOnly = true): Promise<Product[]> {
-  const database = await getDB()
-  const where = activeOnly ? 'WHERE active = 1' : ''
-  const result = database.exec(`SELECT * FROM products ${where} ORDER BY name ASC`)
-  if (!result.length) return []
-  const { columns, values } = result[0]
-  return values.map((row) => {
-    const obj: Record<string, unknown> = {}
-    columns.forEach((c, i) => (obj[c] = row[i]))
-    return obj as unknown as Product
-  })
-}
-
-export async function createProduct(name: string): Promise<void> {
-  const database = await getDB()
-  database.run(`INSERT OR IGNORE INTO products (name) VALUES ('${name.replace(/'/g, "''")}')`)
-  persist(database)
-}
-
-export async function updateProduct(id: number, name: string, active: number): Promise<void> {
-  const database = await getDB()
-  database.run(`UPDATE products SET name = '${name.replace(/'/g, "''")}', active = ${active} WHERE id = ${id}`)
-  persist(database)
-}
-
-export async function deleteProduct(id: number): Promise<void> {
-  const database = await getDB()
-  database.run(`DELETE FROM products WHERE id = ${id}`)
-  persist(database)
-}
-
-// --- USERS ---
-
-export async function getUsers(): Promise<User[]> {
-  const database = await getDB()
-  const result = database.exec(`SELECT id, name, email, role, created_at FROM users ORDER BY name ASC`)
-  if (!result.length) return []
-  const { columns, values } = result[0]
-  return values.map((row) => {
-    const obj: Record<string, unknown> = {}
-    columns.forEach((c, i) => (obj[c] = row[i]))
-    return obj as unknown as User
-  })
-}
-
-export async function createUser(name: string, email: string, password: string, role: Role): Promise<void> {
-  const database = await getDB()
-  database.run(
-    `INSERT INTO users (name, email, password_hash, role) VALUES ('${name.replace(/'/g, "''")}', '${email.replace(/'/g, "''")}', '${password.replace(/'/g, "''")}', '${role}')`
-  )
-  persist(database)
-}
-
-export async function updateUser(id: number, name: string, email: string, role: Role, password?: string): Promise<void> {
-  const database = await getDB()
-  const pwPart = password ? `, password_hash = '${password.replace(/'/g, "''")}'` : ''
-  database.run(
-    `UPDATE users SET name = '${name.replace(/'/g, "''")}', email = '${email.replace(/'/g, "''")}', role = '${role}'${pwPart} WHERE id = ${id}`
-  )
-  persist(database)
-}
-
-export async function deleteUser(id: number): Promise<void> {
-  const database = await getDB()
-  database.run(`DELETE FROM users WHERE id = ${id}`)
-  persist(database)
-}
-
-// --- STATS ---
-
+// ─── STATS ───────────────────────────────────────────────────────────────────
 export async function getDashboardStats(userId?: number): Promise<{
-  total: number
-  interested: number
-  follow_up: number
-  closed: number
-  this_week: number
+  total: number; interested: number; follow_up: number; closed: number; this_week: number
 }> {
-  const database = await getDB()
-  const userFilter = userId ? `WHERE user_id = ${userId}` : ''
-  const res = database.exec(`
-    SELECT
-      COUNT(*) as total,
-      SUM(CASE WHEN status = 'interested' THEN 1 ELSE 0 END) as interested,
-      SUM(CASE WHEN status = 'follow_up' THEN 1 ELSE 0 END) as follow_up,
-      SUM(CASE WHEN status = 'closed' THEN 1 ELSE 0 END) as closed,
-      SUM(CASE WHEN date(created_at) >= date('now', '-7 days') THEN 1 ELSE 0 END) as this_week
-    FROM visits ${userFilter}
-  `)
-  if (!res.length || !res[0].values.length) return { total: 0, interested: 0, follow_up: 0, closed: 0, this_week: 0 }
-  const [total, interested, follow_up, closed, this_week] = res[0].values[0] as number[]
-  return { total: total || 0, interested: interested || 0, follow_up: follow_up || 0, closed: closed || 0, this_week: this_week || 0 }
+  let visits = load<Visit>(KEYS.visits)
+  if (userId) visits = visits.filter(v => v.user_id === userId)
+
+  const weekAgo = new Date()
+  weekAgo.setDate(weekAgo.getDate() - 7)
+  const weekAgoStr = weekAgo.toISOString()
+
+  return {
+    total:       visits.length,
+    interested:  visits.filter(v => v.status === 'interested').length,
+    follow_up:   visits.filter(v => v.status === 'follow_up').length,
+    closed:      visits.filter(v => v.status === 'closed').length,
+    this_week:   visits.filter(v => v.created_at >= weekAgoStr).length,
+  }
 }

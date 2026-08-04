@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { getProducts, createProduct, updateProduct, deleteProduct } from '@/db'
 import { Product } from '@/types'
 import { Plus, Pencil, Trash2, Check, X, Package } from 'lucide-react'
+import UserBadge from '@/components/UserBadge'
 
 export default function AdminProducts() {
   const [products, setProducts] = useState<Product[]>([])
@@ -41,10 +42,14 @@ export default function AdminProducts() {
   }
 
   return (
-    <div className="px-4 pt-6">
-      <div className="flex items-center gap-2 mb-1">
-        <Package size={22} className="text-primary-600" />
-        <h1 className="text-2xl font-black text-gray-900">Produk</h1>
+    <div className="pb-6">
+      <div className="px-4 pt-6">
+      <div className="flex items-center justify-between mb-1">
+        <div className="flex items-center gap-2">
+          <Package size={22} className="text-primary-600" />
+          <h1 className="text-2xl font-black text-gray-900">Produk</h1>
+        </div>
+        <UserBadge />
       </div>
       <p className="text-sm text-gray-500 mb-5">Kelola daftar produk untuk sales rep</p>
 
@@ -99,6 +104,7 @@ export default function AdminProducts() {
           ))}
         </div>
       )}
+      </div>
     </div>
   )
 }

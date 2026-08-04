@@ -5,14 +5,14 @@ import BottomNav from '@/components/BottomNav'
 export default function ManagerLayout() {
   const { user } = useAuth()
   if (!user) return <Navigate to="/login" replace />
-  if (user.role !== 'manager') return <Navigate to="/" replace />
+  if (user.role !== 'manager' && user.role !== 'admin') return <Navigate to="/" replace />
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col max-w-lg mx-auto">
       <div className="flex-1 pb-20">
         <Outlet />
       </div>
-      <BottomNav role="manager" />
+      <BottomNav role={user.role} />
     </div>
   )
 }
