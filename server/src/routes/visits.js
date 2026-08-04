@@ -52,7 +52,7 @@ router.get('/:id', requireAuth, (req, res) => {
 
 // POST /api/visits
 router.post('/', requireAuth, (req, res) => {
-  const { location_name, pic_name, pic_phone, pic_email, products, existing_system, website, status, next_follow_up, notes, photo, lat, lng } = req.body
+  const { location_name, pic_name, pic_phone, pic_email, products, existing_system, website, status, interested, next_follow_up, notes, photo, lat, lng } = req.body
   if (!location_name || !pic_name) return res.status(400).json({ error: 'Nama lokasi dan PIC wajib diisi' })
 
   const result = db.prepare(`
