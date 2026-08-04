@@ -116,13 +116,11 @@ function seedIfEmpty() {
   }
 }
 
-const DB_VERSION = '4'
+const DB_VERSION = '3'
 const VERSION_KEY = 'cg_version'
 
-// Clear stale data from old sql.js era
-if (localStorage.getItem(VERSION_KEY) !== DB_VERSION) {
-  Object.values(KEYS).forEach(k => localStorage.removeItem(k))
-  localStorage.removeItem(VERSION_KEY)
+// Only set version marker if not already set — never wipe existing data
+if (!localStorage.getItem(VERSION_KEY)) {
   localStorage.setItem(VERSION_KEY, DB_VERSION)
 }
 
