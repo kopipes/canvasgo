@@ -13,6 +13,7 @@ import AdminLayout from '@/pages/admin/AdminLayout'
 import AdminProducts from '@/pages/admin/AdminProducts'
 import AdminUsers from '@/pages/admin/AdminUsers'
 import ChangePasswordPage from '@/pages/ChangePasswordPage'
+import ProfileLayout from '@/pages/ProfileLayout'
 
 function RoleRouter() {
   const { user, loading } = useAuth()
@@ -30,12 +31,6 @@ function RoleRouter() {
   return <Navigate to="/rep" replace />
 }
 
-function ProfileRoute() {
-  const { user } = useAuth()
-  if (!user) return <Navigate to="/login" replace />
-  return <ChangePasswordPage />
-}
-
 export default function App() {
   return (
     <AuthProvider>
@@ -44,7 +39,9 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
 
           {/* Profile - accessible to all roles */}
-          <Route path="/profile" element={<ProfileRoute />} />
+          <Route path="/profile" element={<ProfileLayout />}>
+            <Route index element={<ChangePasswordPage />} />
+          </Route>
 
           {/* Rep routes */}
           <Route path="/rep" element={<RepLayout />}>
