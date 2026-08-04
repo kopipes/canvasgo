@@ -29,7 +29,6 @@ export interface Visit {
   lat: number | null
   lng: number | null
   created_at: string
-  synced: number          // 0 = offline queue, 1 = synced
 }
 
 export interface Product {

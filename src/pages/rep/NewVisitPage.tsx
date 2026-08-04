@@ -78,7 +78,6 @@ export default function NewVisitPage() {
     setSaving(true)
     try {
       await createVisit({
-        user_id: user.id,
         location_name: form.location_name.trim(),
         pic_name: form.pic_name.trim(),
         pic_phone: form.pic_phone.trim(),

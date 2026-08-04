@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { AuthUser } from '@/types'
 import { loginUser } from '@/db'
+import { setToken, getToken } from '@/api/client'
 
 interface AuthContextType {
   user: AuthUser | null
@@ -10,7 +11,6 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
-
 const SESSION_KEY = 'canvasgo_session'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -18,28 +18,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // Restore session from localStorage
     const saved = localStorage.getItem(SESSION_KEY)
-    if (saved) {
+    const token = getToken()
+    if (saved && token) {
       try {
         setUser(JSON.parse(saved))
       } catch {
         localStorage.removeItem(SESSION_KEY)
+        setToken(null)
       }
     }
     setLoading(false)
   }, [])
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    const dbUser = await loginUser(email, password)
-    if (!dbUser) return false
-    const authUser: AuthUser = { id: dbUser.id, name: dbUser.name, email: dbUser.email, role: dbUser.role }
+    const result = await loginUser(email, password)
+    if (!result) return false
+    const authUser: AuthUser = { id: result.user.id, name: result.user.name, email: result.user.email, role: result.user.role }
     setUser(authUser)
+    setToken(result.token)
     localStorage.setItem(SESSION_KEY, JSON.stringify(authUser))
     return true
   }
 
   const logout = () => {
     setUser(null)
+    setToken(null)
     localStorage.removeItem(SESSION_KEY)
   }
 
