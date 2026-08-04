@@ -5,6 +5,7 @@ import { Visit, User, VisitStatus } from '@/types'
 import { STATUS_LABELS, STATUS_COLORS, VISIT_STATUSES, formatDateTime } from '@/utils'
 import { Search, ChevronRight, MapPin, Filter, ChevronLeft } from 'lucide-react'
 import UserBadge from '@/components/UserBadge'
+import PhotoModal from '@/components/PhotoModal'
 
 const PAGE_SIZE = 10
 
@@ -20,6 +21,7 @@ export default function ManagerVisitsPage() {
   const [filterTo, setFilterTo] = useState('')
   const [showFilters, setShowFilters] = useState(false)
   const [page, setPage] = useState(1)
+  const [modalPhoto, setModalPhoto] = useState<string | null>(null)
 
   useEffect(() => {
     getUsers().then((u) => setReps(u.filter((x) => x.role === 'rep')))
@@ -132,7 +134,8 @@ export default function ManagerVisitsPage() {
               onClick={() => navigate(`/manager/visit/${v.id}`)}
             >
               {v.photo ? (
-                <img src={v.photo} alt="" className="w-14 h-14 rounded-xl object-cover flex-shrink-0" />
+                <img src={v.photo} alt="" className="w-14 h-14 rounded-xl object-cover flex-shrink-0 cursor-pointer"
+                  onClick={e => { e.stopPropagation(); setModalPhoto(v.photo) }} />
               ) : (
                 <div className="w-14 h-14 rounded-xl bg-primary-50 flex items-center justify-center flex-shrink-0">
                   <MapPin size={22} className="text-primary-400" />
@@ -188,6 +191,7 @@ export default function ManagerVisitsPage() {
         </div>
       )}
       </div>
+      {modalPhoto && <PhotoModal src={modalPhoto} onClose={() => setModalPhoto(null)} />}
     </div>
   )
 }

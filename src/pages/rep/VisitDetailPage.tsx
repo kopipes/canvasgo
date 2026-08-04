@@ -6,6 +6,7 @@ import { Visit, Product, VisitStatus } from '@/types'
 import { STATUS_LABELS, STATUS_COLORS, VISIT_STATUSES, formatDateTime, formatDate, compressImage } from '@/utils'
 import { ChevronLeft, Trash2, Phone, Mail, Globe, MapPin, Calendar, Pencil, Check, X, Camera } from 'lucide-react'
 import CanvassingActivities from '@/components/CanvassingActivities'
+import PhotoModal from '@/components/PhotoModal'
 
 export default function VisitDetailPage() {
   const { id } = useParams()
@@ -16,6 +17,7 @@ export default function VisitDetailPage() {
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [products, setProducts] = useState<Product[]>([])
+  const [modalPhoto, setModalPhoto] = useState<string | null>(null)
   const [form, setForm] = useState<Partial<Visit> & { selectedProducts: string[] }>({
     selectedProducts: []
   })
@@ -140,7 +142,7 @@ export default function VisitDetailPage() {
       {!editing && (
         <>
           {visit.photo && (
-            <img src={visit.photo} alt="Foto kunjungan" className="w-full h-56 object-cover" />
+            <img src={visit.photo} alt="Foto kunjungan" className="w-full h-56 object-cover cursor-pointer" onClick={() => setModalPhoto(visit.photo)} />
           )}
           <div className="px-4 pt-4 space-y-4">
             <div className="flex items-center justify-between">
@@ -305,6 +307,9 @@ export default function VisitDetailPage() {
           </button>
         </div>
       )}
+
+      {/* Photo modal */}
+      {modalPhoto && <PhotoModal src={modalPhoto} onClose={() => setModalPhoto(null)} />}
     </div>
   )
 }

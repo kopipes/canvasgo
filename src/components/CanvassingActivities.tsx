@@ -4,6 +4,7 @@ import { getActivities, createActivity, updateActivity, deleteActivity } from '@
 import { CanvassingActivity, VisitStatus } from '@/types'
 import { STATUS_LABELS, STATUS_COLORS, VISIT_STATUSES, formatDateTime, compressImage } from '@/utils'
 import { Plus, Pencil, Trash2, Check, X, ChevronDown, ChevronUp, Camera } from 'lucide-react'
+import PhotoModal from '@/components/PhotoModal'
 
 interface Props {
   visitId: number
@@ -17,6 +18,7 @@ export default function CanvassingActivities({ visitId, visitOwnerId }: Props) {
   const [showAdd, setShowAdd] = useState(false)
   const [editId, setEditId] = useState<number | null>(null)
   const [saving, setSaving] = useState(false)
+  const [modalPhoto, setModalPhoto] = useState<string | null>(null)
 
   const emptyForm = { tanggal: new Date().toISOString().slice(0, 10), catatan: '', status: '' as VisitStatus | '', photo: '' }
   const [form, setForm] = useState(emptyForm)
@@ -251,7 +253,8 @@ export default function CanvassingActivities({ visitId, visitOwnerId }: Props) {
                       </div>
                       <p className="text-sm text-gray-800 mt-1 whitespace-pre-wrap">{a.catatan}</p>
                       {a.photo && (
-                        <img src={a.photo} alt="Foto aktivitas" className="mt-2 w-full max-h-48 rounded-xl object-cover" />
+                        <img src={a.photo} alt="Foto aktivitas" className="mt-2 w-full max-h-48 rounded-xl object-cover cursor-pointer"
+                          onClick={() => setModalPhoto(a.photo)} />
                       )}
                       <p className="text-xs text-gray-400 mt-1">{formatDateTime(a.created_at)}</p>
                     </div>
@@ -275,6 +278,7 @@ export default function CanvassingActivities({ visitId, visitOwnerId }: Props) {
           ))}
         </div>
       )}
+      {modalPhoto && <PhotoModal src={modalPhoto} onClose={() => setModalPhoto(null)} />}
     </div>
   )
 }
