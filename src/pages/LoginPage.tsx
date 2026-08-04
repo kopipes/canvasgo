@@ -26,19 +26,19 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-primary-600 flex flex-col items-center justify-center px-6">
+    <div className="min-h-screen flex flex-col items-center justify-center px-6 bg-gray-50">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl shadow-lg mb-4">
-            <span className="text-primary-600 font-black text-2xl">CG</span>
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-600 rounded-2xl shadow-soft mb-4">
+            <span className="text-white font-black text-2xl">CG</span>
           </div>
-          <h1 className="text-white text-3xl font-black">CanvasGo</h1>
-          <p className="text-primary-200 text-sm mt-1">Sales Canvassing App</p>
+          <h1 className="text-gray-900 text-3xl font-black tracking-tight">CanvasGo</h1>
+          <p className="text-gray-500 text-sm mt-1">Sales Canvassing App</p>
         </div>
 
         {/* Form */}
-        <div className="bg-white rounded-2xl p-6 shadow-xl">
+        <div className="bg-white rounded-2xl p-6 shadow-card border border-gray-100">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="label">Email</label>
