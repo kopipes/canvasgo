@@ -1,10 +1,11 @@
-import { User, Visit, Product, Role, VisitStatus } from '@/types'
+import { User, Visit, Product, Role, VisitStatus, CanvassingActivity } from '@/types'
 
 // ─── Storage keys ────────────────────────────────────────────────────────────
 const KEYS = {
   users: 'cg_users',
   visits: 'cg_visits',
   products: 'cg_products',
+  activities: 'cg_activities',
   seq: 'cg_seq',
 }
 
@@ -258,4 +259,36 @@ export async function getDashboardStats(userId?: number): Promise<{
     closed:      visits.filter(v => v.status === 'closed').length,
     this_week:   visits.filter(v => v.created_at >= weekAgoStr).length,
   }
+}
+
+// ─── CANVASSING ACTIVITIES ───────────────────────────────────────────────────
+
+export async function getActivities(visitId: number): Promise<CanvassingActivity[]> {
+  const users = load<User>(KEYS.users)
+  return load<CanvassingActivity>(KEYS.activities)
+    .filter(a => a.visit_id === visitId)
+    .map(a => ({ ...a, user_name: users.find(u => u.id === a.user_id)?.name ?? '' }))
+    .sort((a, b) => b.created_at.localeCompare(a.created_at))
+}
+
+export async function createActivity(activity: Omit<CanvassingActivity, 'id' | 'created_at' | 'user_name'>): Promise<void> {
+  const activities = load<CanvassingActivity>(KEYS.activities)
+  activities.push({
+    ...activity,
+    id: nextId('activities'),
+    created_at: new Date().toISOString(),
+  })
+  save(KEYS.activities, activities)
+}
+
+export async function updateActivity(id: number, catatan: string, tanggal: string, status: CanvassingActivity['status']): Promise<void> {
+  const activities = load<CanvassingActivity>(KEYS.activities)
+  const idx = activities.findIndex(a => a.id === id)
+  if (idx === -1) return
+  activities[idx] = { ...activities[idx], catatan, tanggal, status }
+  save(KEYS.activities, activities)
+}
+
+export async function deleteActivity(id: number): Promise<void> {
+  save(KEYS.activities, load<CanvassingActivity>(KEYS.activities).filter(a => a.id !== id))
 }

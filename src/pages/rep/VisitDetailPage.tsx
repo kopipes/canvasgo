@@ -5,6 +5,7 @@ import { getVisitById, deleteVisit, updateVisit, getProducts } from '@/db'
 import { Visit, Product, VisitStatus } from '@/types'
 import { STATUS_LABELS, STATUS_COLORS, VISIT_STATUSES, formatDateTime, formatDate, compressImage } from '@/utils'
 import { ChevronLeft, Trash2, Phone, Mail, Globe, MapPin, Calendar, Pencil, Check, X, Camera } from 'lucide-react'
+import CanvassingActivities from '@/components/CanvassingActivities'
 
 export default function VisitDetailPage() {
   const { id } = useParams()
@@ -202,6 +203,10 @@ export default function VisitDetailPage() {
                 <p className="text-gray-900 whitespace-pre-wrap">{visit.notes}</p>
               </div>
             )}
+
+            {/* Canvassing Activities */}
+            <CanvassingActivities visitId={visit.id} visitOwnerId={visit.user_id} />
+
             {visit.lat && visit.lng && (
               <a href={`https://maps.google.com/?q=${visit.lat},${visit.lng}`} target="_blank" rel="noopener noreferrer"
                 className="card flex items-center gap-3 text-primary-600">

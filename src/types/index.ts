@@ -39,6 +39,17 @@ export interface Product {
   created_at: string
 }
 
+export interface CanvassingActivity {
+  id: number
+  visit_id: number
+  user_id: number
+  user_name?: string
+  tanggal: string       // ISO date string
+  catatan: string
+  status: VisitStatus | ''  // optional status update for this activity
+  created_at: string
+}
+
 export interface AuthUser {
   id: number
   name: string
