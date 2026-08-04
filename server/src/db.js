@@ -65,7 +65,17 @@ db.exec(`
   );
 `)
 
-// ─── Seed ─────────────────────────────────────────────────────────────────────
+// ─── Migrations ───────────────────────────────────────────────────────────────
+function migrate() {
+  // Add interested column if it doesn't exist (added after initial deploy)
+  const cols = db.prepare("PRAGMA table_info(visits)").all()
+  const hasInterested = cols.some(c => c.name === 'interested')
+  if (!hasInterested) {
+    db.prepare("ALTER TABLE visits ADD COLUMN interested INTEGER NOT NULL DEFAULT 0").run()
+    console.log('Migration: added interested column to visits')
+  }
+}
+migrate()
 function seedIfEmpty() {
   const count = db.prepare('SELECT COUNT(*) as c FROM users').get()
   if (count.c > 0) return

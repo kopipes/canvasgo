@@ -60,24 +60,30 @@ export default function VisitDetailPage() {
   const handleSave = async () => {
     if (!visit || !form.location_name?.trim() || !form.pic_name?.trim()) return
     setSaving(true)
-    await updateVisit(visit.id, {
-      location_name: form.location_name.trim(),
-      pic_name: form.pic_name!.trim(),
-      pic_phone: form.pic_phone ?? '',
-      pic_email: form.pic_email ?? '',
-      existing_system: form.existing_system ?? '',
-      website: form.website ?? '',
-      status: form.status as VisitStatus,
-      interested: form.interested ?? 0,
-      next_follow_up: form.next_follow_up ?? '',
-      notes: form.notes ?? '',
-      photo: form.photo ?? '',
-      products: JSON.stringify(form.selectedProducts),
-    })
-    const updated = await getVisitById(visit.id)
-    setVisit(updated)
-    setSaving(false)
-    setEditing(false)
+    try {
+      await updateVisit(visit.id, {
+        location_name: form.location_name.trim(),
+        pic_name: form.pic_name!.trim(),
+        pic_phone: form.pic_phone ?? '',
+        pic_email: form.pic_email ?? '',
+        existing_system: form.existing_system ?? '',
+        website: form.website ?? '',
+        status: form.status as VisitStatus,
+        interested: form.interested ?? 0,
+        next_follow_up: form.next_follow_up ?? '',
+        notes: form.notes ?? '',
+        photo: form.photo ?? '',
+        products: JSON.stringify(form.selectedProducts),
+      })
+      const updated = await getVisitById(visit.id)
+      setVisit(updated)
+      setEditing(false)
+    } catch (err) {
+      console.error(err)
+      alert('Gagal menyimpan. Coba lagi.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const handlePhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
