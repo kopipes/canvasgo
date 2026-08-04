@@ -1,27 +1,30 @@
 import { VisitStatus } from '@/types'
 
 export const STATUS_LABELS: Record<VisitStatus, string> = {
-  interested:     'Tertarik',
-  not_interested: 'Tidak Tertarik',
-  follow_up:      'Follow Up',
-  closed:         'Closed',
-  no_contact:     'Tidak Ada Kontak',
+  perkenalan:    'Perkenalan',
+  share_proposal:'Share Proposal',
+  propose:       'Propose',
+  on_discus:     'On Discus',
+  follow_up:     'Follow Up',
+  closing:       'Closing',
 }
 
 export const STATUS_COLORS: Record<VisitStatus, string> = {
-  interested:     'bg-green-100 text-green-800',
-  not_interested: 'bg-red-100 text-red-800',
-  follow_up:      'bg-yellow-100 text-yellow-800',
-  closed:         'bg-blue-100 text-blue-800',
-  no_contact:     'bg-gray-100 text-gray-700',
+  perkenalan:    'bg-gray-100 text-gray-700',
+  share_proposal:'bg-blue-100 text-blue-700',
+  propose:       'bg-purple-100 text-purple-700',
+  on_discus:     'bg-yellow-100 text-yellow-800',
+  follow_up:     'bg-orange-100 text-orange-700',
+  closing:       'bg-green-100 text-green-800',
 }
 
 export const VISIT_STATUSES: VisitStatus[] = [
-  'interested',
-  'not_interested',
+  'perkenalan',
+  'share_proposal',
+  'propose',
+  'on_discus',
   'follow_up',
-  'closed',
-  'no_contact',
+  'closing',
 ]
 
 export function formatDate(iso: string): string {

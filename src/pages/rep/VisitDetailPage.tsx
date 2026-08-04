@@ -291,7 +291,7 @@ export default function VisitDetailPage() {
               {VISIT_STATUSES.map(s => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
             </select>
           </div>
-          {(form.status === 'follow_up' || form.status === 'interested') && (
+          {(form.status === 'follow_up' || form.status === 'propose') && (
             <div>
               <label className="label">Jadwal Follow Up</label>
               <input className="input-field" type="date" value={form.next_follow_up ?? ''} onChange={e => set('next_follow_up', e.target.value)} />

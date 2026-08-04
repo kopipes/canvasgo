@@ -22,7 +22,7 @@ export default function NewVisitPage() {
     pic_email: '',
     existing_system: '',
     website: '',
-    status: 'follow_up' as VisitStatus,
+    status: 'perkenalan' as VisitStatus,
     next_follow_up: '',
     notes: '',
     selectedProducts: [] as string[],
@@ -204,7 +204,7 @@ export default function NewVisitPage() {
         </div>
 
         {/* Next follow up */}
-        {(form.status === 'follow_up' || form.status === 'interested') && (
+        {(form.status === 'follow_up' || form.status === 'propose') && (
           <div>
             <label className="label">Jadwal Follow Up</label>
             <input className="input-field" type="date" value={form.next_follow_up} onChange={(e) => set('next_follow_up', e.target.value)} />

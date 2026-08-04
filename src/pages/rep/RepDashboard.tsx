@@ -65,7 +65,7 @@ export default function RepDashboard() {
         <div className="card">
           <div className="flex items-center gap-2 mb-1">
             <AlertCircle size={16} className="text-green-500" />
-            <span className="text-xs text-gray-500">Tertarik</span>
+            <span className="text-xs text-gray-500">Propose</span>
           </div>
           <p className="text-3xl font-black text-gray-900">{stats.interested}</p>
         </div>

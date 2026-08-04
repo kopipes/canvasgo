@@ -9,7 +9,7 @@ export interface User {
   created_at: string
 }
 
-export type VisitStatus = 'interested' | 'not_interested' | 'follow_up' | 'closed' | 'no_contact'
+export type VisitStatus = 'perkenalan' | 'share_proposal' | 'propose' | 'on_discus' | 'follow_up' | 'closing'
 
 export interface Visit {
   id: number
