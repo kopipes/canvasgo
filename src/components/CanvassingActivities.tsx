@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { getActivities, createActivity, updateActivity, deleteActivity } from '@/db'
 import { CanvassingActivity, VisitStatus } from '@/types'
-import { STATUS_LABELS, STATUS_COLORS, VISIT_STATUSES, formatDateTime } from '@/utils'
-import { Plus, Pencil, Trash2, Check, X, ChevronDown, ChevronUp } from 'lucide-react'
+import { STATUS_LABELS, STATUS_COLORS, VISIT_STATUSES, formatDateTime, compressImage } from '@/utils'
+import { Plus, Pencil, Trash2, Check, X, ChevronDown, ChevronUp, Camera } from 'lucide-react'
 
 interface Props {
   visitId: number
@@ -18,7 +18,7 @@ export default function CanvassingActivities({ visitId, visitOwnerId }: Props) {
   const [editId, setEditId] = useState<number | null>(null)
   const [saving, setSaving] = useState(false)
 
-  const emptyForm = { tanggal: new Date().toISOString().slice(0, 10), catatan: '', status: '' as VisitStatus | '' }
+  const emptyForm = { tanggal: new Date().toISOString().slice(0, 10), catatan: '', status: '' as VisitStatus | '', photo: '' }
   const [form, setForm] = useState(emptyForm)
   const [editForm, setEditForm] = useState(emptyForm)
 
@@ -31,6 +31,16 @@ export default function CanvassingActivities({ visitId, visitOwnerId }: Props) {
 
   const canAdd = user?.role === 'admin' || user?.id === visitOwnerId
 
+  const handlePhoto = async (file: File, target: 'add' | 'edit') => {
+    try {
+      const photo = await compressImage(file)
+      if (target === 'add') setForm(f => ({ ...f, photo }))
+      else setEditForm(f => ({ ...f, photo }))
+    } catch {
+      alert('Gagal memuat foto.')
+    }
+  }
+
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.catatan.trim() || !user) return
@@ -41,6 +51,7 @@ export default function CanvassingActivities({ visitId, visitOwnerId }: Props) {
       tanggal: form.tanggal,
       catatan: form.catatan.trim(),
       status: form.status,
+      photo: form.photo,
     })
     setForm(emptyForm)
     setShowAdd(false)
@@ -51,7 +62,7 @@ export default function CanvassingActivities({ visitId, visitOwnerId }: Props) {
   const handleUpdate = async (id: number) => {
     if (!editForm.catatan.trim()) return
     setSaving(true)
-    await updateActivity(id, editForm.catatan.trim(), editForm.tanggal, editForm.status)
+    await updateActivity(id, editForm.catatan.trim(), editForm.tanggal, editForm.status, editForm.photo)
     setEditId(null)
     setSaving(false)
     reload()
@@ -118,6 +129,25 @@ export default function CanvassingActivities({ visitId, visitOwnerId }: Props) {
                 />
               </div>
               <div>
+                <label className="label">Foto (opsional)</label>
+                {form.photo ? (
+                  <div className="relative">
+                    <img src={form.photo} alt="Foto aktivitas" className="w-full h-36 rounded-xl object-cover" />
+                    <button type="button" onClick={() => setForm(f => ({ ...f, photo: '' }))}
+                      className="absolute top-2 right-2 bg-black/50 rounded-full p-1 text-white">
+                      <X size={16} />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="flex items-center justify-center gap-2 border-2 border-dashed border-gray-300 rounded-xl py-4 text-sm text-gray-500 cursor-pointer">
+                    <Camera size={18} />
+                    Tambah Foto
+                    <input type="file" accept="image/*" capture="environment" className="hidden"
+                      onChange={e => { const file = e.target.files?.[0]; if (file) handlePhoto(file, 'add') }} />
+                  </label>
+                )}
+              </div>
+              <div>
                 <label className="label">Update Status (opsional)</label>
                 <select
                   className="input-field py-2"
@@ -164,6 +194,25 @@ export default function CanvassingActivities({ visitId, visitOwnerId }: Props) {
                     onChange={e => setEditForm(f => ({ ...f, catatan: e.target.value }))}
                     autoFocus
                   />
+                  <div>
+                    <label className="label">Foto (opsional)</label>
+                    {editForm.photo ? (
+                      <div className="relative">
+                        <img src={editForm.photo} alt="Foto aktivitas" className="w-full h-36 rounded-xl object-cover" />
+                        <button type="button" onClick={() => setEditForm(f => ({ ...f, photo: '' }))}
+                          className="absolute top-2 right-2 bg-black/50 rounded-full p-1 text-white">
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ) : (
+                      <label className="flex items-center justify-center gap-2 border-2 border-dashed border-gray-300 rounded-xl py-4 text-sm text-gray-500 cursor-pointer">
+                        <Camera size={18} />
+                        Tambah Foto
+                        <input type="file" accept="image/*" capture="environment" className="hidden"
+                          onChange={e => { const file = e.target.files?.[0]; if (file) handlePhoto(file, 'edit') }} />
+                      </label>
+                    )}
+                  </div>
                   <select
                     className="input-field py-2"
                     value={editForm.status}
@@ -201,12 +250,15 @@ export default function CanvassingActivities({ visitId, visitOwnerId }: Props) {
                         <span className="text-xs text-gray-400">{a.user_name}</span>
                       </div>
                       <p className="text-sm text-gray-800 mt-1 whitespace-pre-wrap">{a.catatan}</p>
+                      {a.photo && (
+                        <img src={a.photo} alt="Foto aktivitas" className="mt-2 w-full max-h-48 rounded-xl object-cover" />
+                      )}
                       <p className="text-xs text-gray-400 mt-1">{formatDateTime(a.created_at)}</p>
                     </div>
                     {canEdit(a) && (
                       <div className="flex gap-1 flex-shrink-0">
                         <button
-                          onClick={() => { setEditId(a.id); setEditForm({ tanggal: a.tanggal, catatan: a.catatan, status: a.status }) }}
+                          onClick={() => { setEditId(a.id); setEditForm({ tanggal: a.tanggal, catatan: a.catatan, status: a.status, photo: a.photo ?? '' }) }}
                           className="text-gray-400 p-1"
                         >
                           <Pencil size={14} />

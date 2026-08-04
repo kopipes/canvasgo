@@ -47,6 +47,7 @@ export interface CanvassingActivity {
   tanggal: string       // ISO date string
   catatan: string
   status: VisitStatus | ''  // optional status update for this activity
+  photo: string         // base64 data URL or empty
   created_at: string
 }
 

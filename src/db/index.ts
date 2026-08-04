@@ -281,11 +281,11 @@ export async function createActivity(activity: Omit<CanvassingActivity, 'id' | '
   save(KEYS.activities, activities)
 }
 
-export async function updateActivity(id: number, catatan: string, tanggal: string, status: CanvassingActivity['status']): Promise<void> {
+export async function updateActivity(id: number, catatan: string, tanggal: string, status: CanvassingActivity['status'], photo: string): Promise<void> {
   const activities = load<CanvassingActivity>(KEYS.activities)
   const idx = activities.findIndex(a => a.id === id)
   if (idx === -1) return
-  activities[idx] = { ...activities[idx], catatan, tanggal, status }
+  activities[idx] = { ...activities[idx], catatan, tanggal, status, photo }
   save(KEYS.activities, activities)
 }
 
