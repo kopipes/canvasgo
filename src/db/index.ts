@@ -10,6 +10,15 @@ export async function loginUser(email: string, password: string): Promise<{ user
   }
 }
 
+export async function changePassword(oldPassword: string, newPassword: string): Promise<{ ok: boolean; error?: string }> {
+  try {
+    await api.put('/auth/change-password', { old_password: oldPassword, new_password: newPassword })
+    return { ok: true }
+  } catch (e: unknown) {
+    return { ok: false, error: e instanceof Error ? e.message : 'Gagal mengganti password' }
+  }
+}
+
 // ─── USERS ───────────────────────────────────────────────────────────────────
 export async function getUsers(): Promise<User[]> {
   return api.get('/users')

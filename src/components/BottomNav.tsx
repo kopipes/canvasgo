@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { Home, PlusCircle, List, BarChart2, Users, Package, LogOut } from 'lucide-react'
+import { Home, PlusCircle, List, BarChart2, Users, Package, LogOut, UserCircle } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { Role } from '@/types'
 
@@ -14,11 +14,13 @@ export default function BottomNav({ role }: Props) {
     { to: '/rep', label: 'Beranda', icon: Home, end: true },
     { to: '/rep/new', label: 'Catat', icon: PlusCircle, end: false },
     { to: '/rep/activities', label: 'Aktivitas', icon: List, end: false },
+    { to: '/profile', label: 'Profil', icon: UserCircle, end: false },
   ]
 
   const managerLinks = [
     { to: '/manager', label: 'Dashboard', icon: BarChart2, end: true },
     { to: '/manager/visits', label: 'Semua Visit', icon: List, end: false },
+    { to: '/profile', label: 'Profil', icon: UserCircle, end: false },
   ]
 
   const adminLinks = [
@@ -26,6 +28,7 @@ export default function BottomNav({ role }: Props) {
     { to: '/manager/visits', label: 'Semua Visit', icon: List, end: false },
     { to: '/admin/products', label: 'Produk', icon: Package, end: false },
     { to: '/admin/users', label: 'Pengguna', icon: Users, end: false },
+    { to: '/profile', label: 'Profil', icon: UserCircle, end: false },
   ]
 
   const links = role === 'rep' ? repLinks : role === 'manager' ? managerLinks : adminLinks
