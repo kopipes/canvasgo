@@ -23,6 +23,7 @@ export default function NewVisitPage() {
     existing_system: '',
     website: '',
     status: 'perkenalan' as VisitStatus,
+    interested: 0,
     next_follow_up: '',
     notes: '',
     selectedProducts: [] as string[],
@@ -86,6 +87,7 @@ export default function NewVisitPage() {
         existing_system: form.existing_system.trim(),
         website: form.website.trim(),
         status: form.status,
+        interested: form.interested,
         next_follow_up: form.next_follow_up,
         notes: form.notes.trim(),
         photo: form.photo,
@@ -210,6 +212,27 @@ export default function NewVisitPage() {
             <input className="input-field" type="date" value={form.next_follow_up} onChange={(e) => set('next_follow_up', e.target.value)} />
           </div>
         )}
+
+        {/* Tertarik */}
+        <button
+          type="button"
+          onClick={() => set('interested', form.interested ? 0 : 1)}
+          className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl2 border-2 transition-all ${
+            form.interested
+              ? 'border-green-500 bg-green-50 text-green-700'
+              : 'border-gray-200 bg-white text-gray-500'
+          }`}
+        >
+          <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+            form.interested ? 'border-green-500 bg-green-500' : 'border-gray-300'
+          }`}>
+            {form.interested ? <span className="text-white text-xs font-bold">✓</span> : null}
+          </div>
+          <div className="text-left">
+            <p className="font-semibold text-sm">Tertarik</p>
+            <p className="text-xs opacity-70">Centang jika prospek tertarik dengan produk</p>
+          </div>
+        </button>
 
         {/* Notes */}
         <div>

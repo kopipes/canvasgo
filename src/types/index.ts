@@ -23,6 +23,7 @@ export interface Visit {
   existing_system: string
   website: string
   status: VisitStatus
+  interested: number      // 0 = tidak tertarik, 1 = tertarik
   next_follow_up: string  // ISO date string or empty
   notes: string
   photo: string           // base64 data URL or empty

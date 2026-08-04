@@ -44,6 +44,7 @@ db.exec(`
     existing_system TEXT NOT NULL DEFAULT '',
     website         TEXT NOT NULL DEFAULT '',
     status          TEXT NOT NULL DEFAULT 'follow_up',
+    interested      INTEGER NOT NULL DEFAULT 0,
     next_follow_up  TEXT NOT NULL DEFAULT '',
     notes           TEXT NOT NULL DEFAULT '',
     photo           TEXT NOT NULL DEFAULT '',

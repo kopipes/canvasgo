@@ -41,6 +41,7 @@ export default function VisitDetailPage() {
       existing_system: visit.existing_system,
       website: visit.website,
       status: visit.status,
+      interested: visit.interested ?? 0,
       next_follow_up: visit.next_follow_up,
       notes: visit.notes,
       photo: visit.photo,
@@ -67,6 +68,7 @@ export default function VisitDetailPage() {
       existing_system: form.existing_system ?? '',
       website: form.website ?? '',
       status: form.status as VisitStatus,
+      interested: form.interested ?? 0,
       next_follow_up: form.next_follow_up ?? '',
       notes: form.notes ?? '',
       photo: form.photo ?? '',
@@ -96,7 +98,7 @@ export default function VisitDetailPage() {
     }))
   }
 
-  const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }))
+  const set = (k: string, v: unknown) => setForm(f => ({ ...f, [k]: v }))
 
   if (!visit) return <div className="flex items-center justify-center h-40 text-gray-400">Memuat...</div>
 
@@ -147,7 +149,14 @@ export default function VisitDetailPage() {
           <div className="px-4 pt-4 space-y-4">
             <div className="flex items-center justify-between">
               <span className={`badge text-sm px-3 py-1 ${STATUS_COLORS[visit.status]}`}>{STATUS_LABELS[visit.status]}</span>
-              <span className="text-sm text-gray-400">{formatDateTime(visit.created_at)}</span>
+              <div className="flex items-center gap-2">
+                {visit.interested ? (
+                  <span className="badge bg-green-100 text-green-700 px-3 py-1 text-sm">Tertarik</span>
+                ) : (
+                  <span className="badge bg-red-50 text-red-500 px-3 py-1 text-sm">Tidak Tertarik</span>
+                )}
+                <span className="text-sm text-gray-400">{formatDateTime(visit.created_at)}</span>
+              </div>
             </div>
             {user?.role !== 'rep' && visit.user_name && (
               <div className="card bg-primary-50 border-primary-100">
@@ -297,6 +306,25 @@ export default function VisitDetailPage() {
               <input className="input-field" type="date" value={form.next_follow_up ?? ''} onChange={e => set('next_follow_up', e.target.value)} />
             </div>
           )}
+          <button
+            type="button"
+            onClick={() => set('interested', form.interested ? 0 : 1)}
+            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl2 border-2 transition-all ${
+              form.interested
+                ? 'border-green-500 bg-green-50 text-green-700'
+                : 'border-gray-200 bg-white text-gray-500'
+            }`}
+          >
+            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+              form.interested ? 'border-green-500 bg-green-500' : 'border-gray-300'
+            }`}>
+              {form.interested ? <span className="text-white text-xs font-bold">✓</span> : null}
+            </div>
+            <div className="text-left">
+              <p className="font-semibold text-sm">Tertarik</p>
+              <p className="text-xs opacity-70">Centang jika prospek tertarik dengan produk</p>
+            </div>
+          </button>
           <div>
             <label className="label">Catatan</label>
             <textarea className="input-field resize-none" rows={3} value={form.notes ?? ''} onChange={e => set('notes', e.target.value)} />

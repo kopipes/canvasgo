@@ -56,9 +56,9 @@ router.post('/', requireAuth, (req, res) => {
   if (!location_name || !pic_name) return res.status(400).json({ error: 'Nama lokasi dan PIC wajib diisi' })
 
   const result = db.prepare(`
-    INSERT INTO visits (user_id, location_name, pic_name, pic_phone, pic_email, products, existing_system, website, status, next_follow_up, notes, photo, lat, lng)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(req.user.id, location_name, pic_name, pic_phone||'', pic_email||'', products||'[]', existing_system||'', website||'', status||'follow_up', next_follow_up||'', notes||'', photo||'', lat||null, lng||null)
+    INSERT INTO visits (user_id, location_name, pic_name, pic_phone, pic_email, products, existing_system, website, status, interested, next_follow_up, notes, photo, lat, lng)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(req.user.id, location_name, pic_name, pic_phone||'', pic_email||'', products||'[]', existing_system||'', website||'', status||'perkenalan', interested||0, next_follow_up||'', notes||'', photo||'', lat||null, lng||null)
 
   res.json({ id: result.lastInsertRowid })
 })
@@ -70,11 +70,11 @@ router.put('/:id', requireAuth, (req, res) => {
   if (!visit) return res.status(404).json({ error: 'Visit tidak ditemukan' })
   if (req.user.role === 'rep' && visit.user_id !== req.user.id) return res.status(403).json({ error: 'Forbidden' })
 
-  const { location_name, pic_name, pic_phone, pic_email, products, existing_system, website, status, next_follow_up, notes, photo } = req.body
+  const { location_name, pic_name, pic_phone, pic_email, products, existing_system, website, status, interested, next_follow_up, notes, photo } = req.body
   db.prepare(`
-    UPDATE visits SET location_name=?, pic_name=?, pic_phone=?, pic_email=?, products=?, existing_system=?, website=?, status=?, next_follow_up=?, notes=?, photo=?
+    UPDATE visits SET location_name=?, pic_name=?, pic_phone=?, pic_email=?, products=?, existing_system=?, website=?, status=?, interested=?, next_follow_up=?, notes=?, photo=?
     WHERE id=?
-  `).run(location_name, pic_name, pic_phone||'', pic_email||'', products||'[]', existing_system||'', website||'', status, next_follow_up||'', notes||'', photo||'', id)
+  `).run(location_name, pic_name, pic_phone||'', pic_email||'', products||'[]', existing_system||'', website||'', status, interested||0, next_follow_up||'', notes||'', photo||'', id)
 
   res.json({ ok: true })
 })
