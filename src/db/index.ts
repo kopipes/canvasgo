@@ -116,7 +116,7 @@ function seedIfEmpty() {
   }
 }
 
-const DB_VERSION = '3'
+const DB_VERSION = '4'
 const VERSION_KEY = 'cg_version'
 
 // Clear stale data from old sql.js era
