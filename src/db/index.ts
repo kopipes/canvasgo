@@ -93,11 +93,15 @@ export async function deleteVisit(id: number): Promise<void> {
 }
 
 // ─── STATS ───────────────────────────────────────────────────────────────────
-export async function getDashboardStats(userId?: number): Promise<{
+export async function getDashboardStats(userId?: number, dateFrom?: string, dateTo?: string): Promise<{
   total: number; interested: number; follow_up: number; closed: number; this_week: number
 }> {
-  const qs = userId ? `?userId=${userId}` : ''
-  return api.get(`/visits/stats/summary${qs}`)
+  const params = new URLSearchParams()
+  if (userId) params.set('userId', String(userId))
+  if (dateFrom) params.set('dateFrom', dateFrom)
+  if (dateTo) params.set('dateTo', dateTo)
+  const qs = params.toString()
+  return api.get(`/visits/stats/summary${qs ? '?' + qs : ''}`)
 }
 
 // ─── CANVASSING ACTIVITIES ───────────────────────────────────────────────────

@@ -92,10 +92,17 @@ router.delete('/:id', requireAuth, (req, res) => {
 
 // GET /api/visits/stats/summary
 router.get('/stats/summary', requireAuth, (req, res) => {
-  const { userId } = req.query
+  const { userId, dateFrom, dateTo } = req.query
   const effectiveUserId = req.user.role === 'rep' ? req.user.id : (userId ? Number(userId) : null)
-  const where = effectiveUserId ? 'WHERE user_id = ?' : ''
-  const params = effectiveUserId ? [effectiveUserId] : []
+
+  const conditions = []
+  const params = []
+
+  if (effectiveUserId) { conditions.push('user_id = ?'); params.push(effectiveUserId) }
+  if (dateFrom) { conditions.push("date(created_at) >= ?"); params.push(dateFrom) }
+  if (dateTo) { conditions.push("date(created_at) <= ?"); params.push(dateTo) }
+
+  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''
 
   const row = db.prepare(`
     SELECT
