@@ -82,7 +82,7 @@ export default function RepDashboard() {
       {/* Stats grid — 3 columns */}
       <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Ringkasan Kamu</h2>
       <div className="grid grid-cols-3 gap-2 mb-4">
-        <StatCard icon={Users} iconClass="text-sky-500" label="Total Leads" value={stats.total_leads} />
+        <StatCard icon={Users} iconClass="text-sky-500" label="Total Data" value={stats.total} />
         <StatCard icon={MapPin} iconClass="text-primary-600" label="Total Visit" value={stats.total_visited} />
         <StatCard icon={Clock} iconClass="text-yellow-500" label="Last 7 Days" value={stats.this_week} />
         <StatCard icon={AlertCircle} iconClass="text-green-500" label="Tertarik" value={stats.interested} />

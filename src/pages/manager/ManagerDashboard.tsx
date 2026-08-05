@@ -91,7 +91,7 @@ export default function ManagerDashboard() {
 
       {/* Overall stats — 3 columns */}
       <div className="grid grid-cols-3 gap-2 mb-6">
-        <StatCard icon={Users} iconClass="text-sky-500" label="Total Leads" value={stats.total_leads} />
+        <StatCard icon={Users} iconClass="text-sky-500" label="Total Data" value={stats.total} />
         <StatCard icon={MapPin} iconClass="text-primary-600" label="Total Visit" value={stats.total_visited} />
         <StatCard icon={Clock} iconClass="text-yellow-500" label="Last 7 Days" value={stats.this_week} />
         <StatCard icon={AlertCircle} iconClass="text-green-500" label="Tertarik" value={stats.interested} />
