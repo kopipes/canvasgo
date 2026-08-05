@@ -98,7 +98,7 @@ export default function VisitDetailPage() {
             <ChevronLeft size={24} />
           </button>
           <h1 className="text-lg font-bold text-gray-900 truncate">
-            {editing ? 'Edit Kunjungan' : visit.location_name}
+            {editing ? (visit.status === 'new' ? 'Edit Leads' : 'Edit Kunjungan') : visit.location_name}
           </h1>
         </div>
         <div className="flex items-center gap-1">
