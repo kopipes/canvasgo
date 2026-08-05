@@ -165,13 +165,14 @@ export default function VisitDetailPage() {
               </div>
             )}
 
-            {/* Address */}
-            {visit.address && (
-              <div className="card">
-                <p className="text-xs text-gray-500 mb-1">Alamat</p>
-                <p className="text-gray-900 text-sm">{visit.address}</p>
-              </div>
-            )}
+            {/* Perusahaan + Alamat */}
+            <div className="card space-y-2">
+              <h2 className="font-semibold text-gray-700 text-sm uppercase tracking-wide">Perusahaan</h2>
+              <p className="font-bold text-gray-900 text-lg">{visit.location_name}</p>
+              {visit.address && (
+                <p className="text-sm text-gray-600">{visit.address}</p>
+              )}
+            </div>
             {user?.role !== 'rep' && visit.user_name && (
               <div className="card bg-primary-50 border-primary-100">
                 <p className="text-xs text-primary-600 font-medium">Sales Rep</p>
