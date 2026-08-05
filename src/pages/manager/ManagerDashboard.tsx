@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { getDashboardStats, getUsers, getFollowUpSummary, FollowUpSummaryItem } from '@/db'
 import { User } from '@/types'
-import { TrendingUp, Clock, CheckCircle, Users, AlertCircle, X, CalendarCheck, ChevronRight, MapPin } from 'lucide-react'
+import { TrendingUp, CheckCircle, Users, AlertCircle, X, CalendarCheck, ChevronRight, MapPin } from 'lucide-react'
 import UserBadge from '@/components/UserBadge'
 import { STATUS_LABELS, STATUS_COLORS, formatDate } from '@/utils'
 
@@ -14,10 +14,11 @@ interface Stats {
   interested: number
   follow_up: number
   closed: number
+  lost: number
   this_week: number
 }
 
-const EMPTY_STATS: Stats = { total: 0, total_leads: 0, total_visited: 0, interested: 0, follow_up: 0, closed: 0, this_week: 0 }
+const EMPTY_STATS: Stats = { total: 0, total_leads: 0, total_visited: 0, interested: 0, follow_up: 0, closed: 0, lost: 0, this_week: 0 }
 
 const StatCard = ({ icon: Icon, iconClass, label, value }: { icon: React.ElementType, iconClass: string, label: string, value: number }) => (
   <div className="card p-3">
@@ -93,10 +94,10 @@ export default function ManagerDashboard() {
       <div className="grid grid-cols-3 gap-2 mb-6">
         <StatCard icon={Users} iconClass="text-sky-500" label="Total Data" value={stats.total} />
         <StatCard icon={MapPin} iconClass="text-primary-600" label="Total Visit" value={stats.total_visited} />
-        <StatCard icon={Clock} iconClass="text-yellow-500" label="Last 7 Days" value={stats.this_week} />
         <StatCard icon={AlertCircle} iconClass="text-green-500" label="Tertarik" value={stats.interested} />
         <StatCard icon={CheckCircle} iconClass="text-blue-500" label="In Progress" value={stats.follow_up} />
         <StatCard icon={TrendingUp} iconClass="text-purple-500" label="Close Deal" value={stats.closed} />
+        <StatCard icon={X} iconClass="text-red-500" label="Lost" value={stats.lost} />
       </div>
 
       {/* Per rep */}

@@ -112,6 +112,7 @@ router.get('/stats/summary', requireAuth, (req, res) => {
       SUM(CASE WHEN interested=1 THEN 1 ELSE 0 END) as interested,
       SUM(CASE WHEN status='in_progress' THEN 1 ELSE 0 END) as follow_up,
       SUM(CASE WHEN status='close_deal' THEN 1 ELSE 0 END) as closed,
+      SUM(CASE WHEN status='lost' THEN 1 ELSE 0 END) as lost,
       SUM(CASE WHEN date(created_at) >= date('now','-7 days') THEN 1 ELSE 0 END) as this_week
     FROM visits ${where}
   `).get(...params)
@@ -123,6 +124,7 @@ router.get('/stats/summary', requireAuth, (req, res) => {
     interested: row.interested || 0,
     follow_up: row.follow_up || 0,
     closed: row.closed || 0,
+    lost: row.lost || 0,
     this_week: row.this_week || 0,
   })
 })

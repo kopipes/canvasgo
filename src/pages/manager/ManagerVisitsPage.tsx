@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { getVisits, getUsers } from '@/db'
 import { Visit, User, VisitStatus } from '@/types'
 import { STATUS_LABELS, STATUS_COLORS, ALL_VISIT_STATUSES, formatDateTime } from '@/utils'
 import { Search, ChevronRight, MapPin, Filter, ChevronLeft } from 'lucide-react'
 import UserBadge from '@/components/UserBadge'
-import PhotoModal from '@/components/PhotoModal'
 
 const PAGE_SIZE = 10
 
 export default function ManagerVisitsPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [visits, setVisits] = useState<Visit[]>([])
   const [reps, setReps] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
@@ -21,7 +21,6 @@ export default function ManagerVisitsPage() {
   const [filterTo, setFilterTo] = useState('')
   const [showFilters, setShowFilters] = useState(false)
   const [page, setPage] = useState(1)
-  const [modalPhoto, setModalPhoto] = useState<string | null>(null)
 
   useEffect(() => {
     getUsers().then((u) => setReps(u.filter((x) => x.role === 'rep')))
@@ -40,7 +39,7 @@ export default function ManagerVisitsPage() {
       setVisits(v)
       setLoading(false)
     })
-  }, [search, filterRep, filterStatus, filterFrom, filterTo])
+  }, [search, filterRep, filterStatus, filterFrom, filterTo, location.key])
 
   const activeFilters = [filterRep, filterStatus, filterFrom, filterTo].filter(Boolean).length
   const totalPages = Math.max(1, Math.ceil(visits.length / PAGE_SIZE))
@@ -186,7 +185,6 @@ export default function ManagerVisitsPage() {
         </div>
       )}
       </div>
-      {modalPhoto && <PhotoModal src={modalPhoto} onClose={() => setModalPhoto(null)} />}
     </div>
   )
 }
