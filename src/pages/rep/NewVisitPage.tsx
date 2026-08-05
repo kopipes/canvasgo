@@ -1,15 +1,15 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
-import { createVisit, getProducts } from '@/db'
-import { Product, LeadSource, LEAD_SOURCES, LEAD_SOURCE_LABELS } from '@/types'
+import { createVisit } from '@/db'
+import { LeadSource, LEAD_SOURCES, LEAD_SOURCE_LABELS } from '@/types'
 import { ChevronLeft, MapPin } from 'lucide-react'
+import ProductSelector, { encodeProducts, ProductEntry } from '@/components/ProductSelector'
 
 export default function NewVisitPage() {
   const { user } = useAuth()
   const navigate = useNavigate()
 
-  const [products, setProducts] = useState<Product[]>([])
   const [saving, setSaving] = useState(false)
   const [locating, setLocating] = useState(false)
 
@@ -24,25 +24,12 @@ export default function NewVisitPage() {
     website: '',
     interested: 0,
     notes: '',
-    selectedProducts: [] as string[],
+    selectedProducts: {} as ProductEntry,
     lat: null as number | null,
     lng: null as number | null,
   })
 
-  useEffect(() => {
-    getProducts(true).then(setProducts)
-  }, [])
-
   const set = (k: string, v: unknown) => setForm((f) => ({ ...f, [k]: v }))
-
-  const toggleProduct = (name: string) => {
-    setForm((f) => ({
-      ...f,
-      selectedProducts: f.selectedProducts.includes(name)
-        ? f.selectedProducts.filter((p) => p !== name)
-        : [...f.selectedProducts, name],
-    }))
-  }
 
   const getLocation = () => {
     if (!navigator.geolocation) return
@@ -71,7 +58,7 @@ export default function NewVisitPage() {
         pic_name: form.pic_name.trim(),
         pic_phone: form.pic_phone.trim(),
         pic_email: form.pic_email.trim(),
-        products: JSON.stringify(form.selectedProducts),
+        products: encodeProducts(form.selectedProducts),
         existing_system: form.existing_system.trim(),
         website: form.website.trim(),
         status: 'new',
@@ -150,23 +137,13 @@ export default function NewVisitPage() {
         </div>
 
         {/* Products */}
-        {products.length > 0 && (
-          <div>
-            <label className="label">Produk yang Ditawarkan</label>
-            <div className="flex flex-wrap gap-2">
-              {products.map((p) => (
-                <button key={p.id} type="button" onClick={() => toggleProduct(p.name)}
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
-                    form.selectedProducts.includes(p.name)
-                      ? 'bg-primary-600 text-white border-primary-600'
-                      : 'bg-white text-gray-600 border-gray-300'
-                  }`}>
-                  {p.name}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+        <div>
+          <label className="label">Produk yang Ditawarkan</label>
+          <ProductSelector
+            value={form.selectedProducts}
+            onChange={(val) => set('selectedProducts', val)}
+          />
+        </div>
 
         {/* Existing system */}
         <div>

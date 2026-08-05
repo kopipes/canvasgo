@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
-import { getVisitById, deleteVisit, updateVisit, getProducts } from '@/db'
-import { Visit, Product, VisitStatus } from '@/types'
+import { getVisitById, deleteVisit, updateVisit } from '@/db'
+import { Visit, VisitStatus } from '@/types'
 import { STATUS_LABELS, STATUS_COLORS, VISIT_STATUSES, formatDateTime, formatDate, compressImage } from '@/utils'
 import { ChevronLeft, Trash2, Phone, Mail, Globe, MapPin, Calendar, Pencil, Check, X, Camera, PlayCircle } from 'lucide-react'
 import CanvassingActivities from '@/components/CanvassingActivities'
 import PhotoModal from '@/components/PhotoModal'
+import ProductSelector, { encodeProducts, decodeProducts, getProductNames, ProductEntry } from '@/components/ProductSelector'
 
 export default function VisitDetailPage() {
   const { id } = useParams()
@@ -16,15 +17,13 @@ export default function VisitDetailPage() {
   const [deleting, setDeleting] = useState(false)
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [products, setProducts] = useState<Product[]>([])
   const [modalPhoto, setModalPhoto] = useState<string | null>(null)
-  const [form, setForm] = useState<Partial<Visit> & { selectedProducts: string[] }>({
-    selectedProducts: []
+  const [form, setForm] = useState<Partial<Visit> & { selectedProducts: ProductEntry }>({
+    selectedProducts: {}
   })
 
   useEffect(() => {
     if (id) getVisitById(Number(id)).then(setVisit)
-    getProducts(true).then(setProducts)
   }, [id])
 
   const canEdit = user?.role === 'admin' || (visit ? user?.id === visit.user_id : false)
@@ -32,7 +31,6 @@ export default function VisitDetailPage() {
 
   const startEdit = () => {
     if (!visit) return
-    const parsed: string[] = (() => { try { return JSON.parse(visit.products) } catch { return [] } })()
     setForm({
       location_name: visit.location_name,
       pic_name: visit.pic_name,
@@ -45,7 +43,7 @@ export default function VisitDetailPage() {
       next_follow_up: visit.next_follow_up,
       notes: visit.notes,
       photo: visit.photo,
-      selectedProducts: parsed,
+      selectedProducts: decodeProducts(visit.products),
     })
     setEditing(true)
   }
@@ -73,7 +71,7 @@ export default function VisitDetailPage() {
         next_follow_up: form.next_follow_up ?? '',
         notes: form.notes ?? '',
         photo: form.photo ?? '',
-        products: JSON.stringify(form.selectedProducts),
+        products: encodeProducts(form.selectedProducts as ProductEntry),
       })
       const updated = await getVisitById(visit.id)
       setVisit(updated)
@@ -95,20 +93,12 @@ export default function VisitDetailPage() {
     } catch { /* ignore */ }
   }
 
-  const toggleProduct = (name: string) => {
-    setForm(f => ({
-      ...f,
-      selectedProducts: f.selectedProducts!.includes(name)
-        ? f.selectedProducts!.filter(p => p !== name)
-        : [...f.selectedProducts!, name]
-    }))
-  }
-
   const set = (k: string, v: unknown) => setForm(f => ({ ...f, [k]: v }))
 
   if (!visit) return <div className="flex items-center justify-center h-40 text-gray-400">Memuat...</div>
 
-  const parsedProducts: string[] = (() => { try { return JSON.parse(visit.products) } catch { return [] } })()
+  const parsedProductNames: string[] = getProductNames(visit.products)
+  const parsedProductEntry = decodeProducts(visit.products)
 
   return (
     <div className="pb-6">
@@ -200,12 +190,17 @@ export default function VisitDetailPage() {
                 </a>
               )}
             </div>
-            {parsedProducts.length > 0 && (
+            {parsedProductNames.length > 0 && (
               <div className="card">
                 <h2 className="font-semibold text-gray-700 text-sm uppercase tracking-wide mb-2">Produk Ditawarkan</h2>
-                <div className="flex flex-wrap gap-2">
-                  {parsedProducts.map(p => (
-                    <span key={p} className="badge bg-primary-100 text-primary-700 px-3 py-1">{p}</span>
+                <div className="space-y-2">
+                  {parsedProductNames.map(p => (
+                    <div key={p}>
+                      <span className="badge bg-primary-100 text-primary-700 px-3 py-1">{p}</span>
+                      {parsedProductEntry[p] && (
+                        <p className="text-sm text-gray-600 mt-1 ml-1">{parsedProductEntry[p]}</p>
+                      )}
+                    </div>
                   ))}
                 </div>
               </div>
@@ -285,23 +280,13 @@ export default function VisitDetailPage() {
             <input className="input-field" type="email" value={form.pic_email ?? ''} onChange={e => set('pic_email', e.target.value)} />
           </div>
 
-          {products.length > 0 && (
-            <div>
-              <label className="label">Produk Ditawarkan</label>
-              <div className="flex flex-wrap gap-2">
-                {products.map(p => (
-                  <button key={p.id} type="button" onClick={() => toggleProduct(p.name)}
-                    className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
-                      form.selectedProducts!.includes(p.name)
-                        ? 'bg-primary-600 text-white border-primary-600'
-                        : 'bg-white text-gray-600 border-gray-300'
-                    }`}>
-                    {p.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+          <div>
+            <label className="label">Produk Ditawarkan</label>
+            <ProductSelector
+              value={form.selectedProducts as ProductEntry}
+              onChange={(val) => setForm(f => ({ ...f, selectedProducts: val }))}
+            />
+          </div>
 
           <div>
             <label className="label">Sistem Eksisting</label>
