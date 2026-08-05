@@ -18,18 +18,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Restore session from localStorage
-    const saved = localStorage.getItem(SESSION_KEY)
-    const token = getToken()
-    if (saved && token) {
-      try {
-        setUser(JSON.parse(saved))
-      } catch {
-        localStorage.removeItem(SESSION_KEY)
-        setToken(null)
+    const restore = async () => {
+      const saved = localStorage.getItem(SESSION_KEY)
+      const token = getToken()
+      if (saved && token) {
+        try {
+          // Optimistically restore from localStorage first (fast)
+          setUser(JSON.parse(saved))
+          // Then verify token is still valid with server
+          const res = await fetch('/api/auth/me', {
+            headers: { Authorization: `Bearer ${token}` }
+          })
+          if (!res.ok) {
+            // Token expired or invalid — clear session
+            localStorage.removeItem(SESSION_KEY)
+            setToken(null)
+            setUser(null)
+          } else {
+            // Update user info from server
+            const freshUser = await res.json()
+            const authUser = { id: freshUser.id, name: freshUser.name, email: freshUser.email, role: freshUser.role }
+            setUser(authUser)
+            localStorage.setItem(SESSION_KEY, JSON.stringify(authUser))
+          }
+        } catch {
+          // Network error — keep local session (offline support)
+        }
       }
+      setLoading(false)
     }
-    setLoading(false)
+    restore()
   }, [])
 
   const login = async (email: string, password: string): Promise<boolean> => {
