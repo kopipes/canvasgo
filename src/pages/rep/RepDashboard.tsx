@@ -84,7 +84,7 @@ export default function RepDashboard() {
         <div className="card">
           <div className="flex items-center gap-2 mb-1">
             <Clock size={16} className="text-yellow-500" />
-            <span className="text-xs text-gray-500">Minggu Ini</span>
+            <span className="text-xs text-gray-500">Last 7 Days</span>
           </div>
           <p className="text-3xl font-black text-gray-900">{stats.this_week}</p>
         </div>
