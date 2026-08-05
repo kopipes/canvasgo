@@ -133,14 +133,9 @@ export default function ManagerVisitsPage() {
               className="card w-full text-left flex items-center gap-3"
               onClick={() => navigate(`/manager/visit/${v.id}`)}
             >
-              {v.photo ? (
-                <img src={v.photo} alt="" className="w-14 h-14 rounded-xl object-cover flex-shrink-0 cursor-pointer"
-                  onClick={e => { e.stopPropagation(); setModalPhoto(v.photo) }} />
-              ) : (
-                <div className="w-14 h-14 rounded-xl bg-primary-50 flex items-center justify-center flex-shrink-0">
-                  <MapPin size={22} className="text-primary-400" />
-                </div>
-              )}
+              <div className="w-14 h-14 rounded-xl bg-primary-50 flex items-center justify-center flex-shrink-0">
+                <MapPin size={22} className="text-primary-400" />
+              </div>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-gray-900 truncate">{v.location_name}</p>
                 <p className="text-sm text-gray-500 truncate">{v.pic_name} · {v.user_name}</p>

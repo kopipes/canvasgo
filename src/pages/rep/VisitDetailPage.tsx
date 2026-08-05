@@ -3,10 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { getVisitById, deleteVisit, updateVisit } from '@/db'
 import { Visit, VisitStatus } from '@/types'
-import { STATUS_LABELS, STATUS_COLORS, VISIT_STATUSES, formatDateTime, formatDate, compressImage } from '@/utils'
-import { ChevronLeft, Trash2, Phone, Mail, Globe, MapPin, Calendar, Pencil, Check, X, Camera, PlayCircle } from 'lucide-react'
+import { STATUS_LABELS, STATUS_COLORS, VISIT_STATUSES, formatDateTime, formatDate } from '@/utils'
+import { ChevronLeft, Trash2, Phone, Mail, Globe, MapPin, Calendar, Pencil, Check, X, PlayCircle } from 'lucide-react'
 import CanvassingActivities from '@/components/CanvassingActivities'
-import PhotoModal from '@/components/PhotoModal'
 import ProductSelector, { encodeProducts, decodeProducts, getProductNames, ProductEntry } from '@/components/ProductSelector'
 
 export default function VisitDetailPage() {
@@ -17,7 +16,6 @@ export default function VisitDetailPage() {
   const [deleting, setDeleting] = useState(false)
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [modalPhoto, setModalPhoto] = useState<string | null>(null)
   const [form, setForm] = useState<Partial<Visit> & { selectedProducts: ProductEntry }>({
     selectedProducts: {}
   })
@@ -84,15 +82,6 @@ export default function VisitDetailPage() {
     }
   }
 
-  const handlePhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    try {
-      const compressed = await compressImage(file)
-      setForm(f => ({ ...f, photo: compressed }))
-    } catch { /* ignore */ }
-  }
-
   const set = (k: string, v: unknown) => setForm(f => ({ ...f, [k]: v }))
 
   if (!visit) return <div className="flex items-center justify-center h-40 text-gray-400">Memuat...</div>
@@ -139,9 +128,6 @@ export default function VisitDetailPage() {
       {/* ── VIEW MODE ── */}
       {!editing && (
         <>
-          {visit.photo && (
-            <img src={visit.photo} alt="Foto kunjungan" className="w-full h-56 object-cover cursor-pointer" onClick={() => setModalPhoto(visit.photo)} />
-          )}
           <div className="px-4 pt-4 space-y-4">
             <div className="flex items-center justify-between">
               <span className={`badge text-sm px-3 py-1 ${STATUS_COLORS[visit.status]}`}>{STATUS_LABELS[visit.status]}</span>
@@ -244,25 +230,6 @@ export default function VisitDetailPage() {
       {/* ── EDIT MODE ── */}
       {editing && (
         <div className="px-4 pt-4 space-y-4">
-          {/* Photo */}
-          <div>
-            {form.photo ? (
-              <div className="relative">
-                <img src={form.photo} alt="" className="w-full h-48 object-cover rounded-2xl" />
-                <button type="button" onClick={() => set('photo', '')}
-                  className="absolute top-2 right-2 bg-black/50 rounded-full p-1 text-white">
-                  <X size={16} />
-                </button>
-              </div>
-            ) : (
-              <label className="w-full h-36 border-2 border-dashed border-gray-300 rounded-2xl flex flex-col items-center justify-center gap-2 text-gray-400 bg-gray-50 cursor-pointer">
-                <Camera size={28} />
-                <span className="text-sm">Ganti Foto</span>
-                <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handlePhoto} />
-              </label>
-            )}
-          </div>
-
           <div>
             <label className="label">Nama Lokasi <span className="text-red-500">*</span></label>
             <input className="input-field" value={form.location_name ?? ''} onChange={e => set('location_name', e.target.value)} />
@@ -337,9 +304,6 @@ export default function VisitDetailPage() {
           </button>
         </div>
       )}
-
-      {/* Photo modal */}
-      {modalPhoto && <PhotoModal src={modalPhoto} onClose={() => setModalPhoto(null)} />}
     </div>
   )
 }
