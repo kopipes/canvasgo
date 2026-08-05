@@ -1,10 +1,10 @@
 // Hardcoded product list — no master data needed
 export const PRODUCT_LIST = [
-  'Kontakami',
-  'Reservation System',
-  'POS Integration',
-  'Analytics Dashboard',
-  'Customer Loyalty',
+  'Inbound',
+  'Outbound',
+  'Omnichannel',
+  'AI QA Scoring',
+  'Human Resource',
 ]
 
 export interface ProductEntry {
