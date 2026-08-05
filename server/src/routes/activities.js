@@ -30,6 +30,11 @@ router.post('/', requireAuth, (req, res) => {
     VALUES (?, ?, ?, ?, ?, ?)
   `).run(Number(visit_id), req.user.id, tanggal, catatan.trim(), status||'', photo||'')
 
+  // Sync visit status if activity has a status set
+  if (status) {
+    db.prepare('UPDATE visits SET status=? WHERE id=?').run(status, Number(visit_id))
+  }
+
   res.json({ id: result.lastInsertRowid })
 })
 
@@ -43,6 +48,11 @@ router.put('/:id', requireAuth, (req, res) => {
   const { tanggal, catatan, status, photo } = req.body
   db.prepare('UPDATE canvassing_activities SET tanggal=?, catatan=?, status=?, photo=? WHERE id=?')
     .run(tanggal, catatan.trim(), status||'', photo||'', id)
+
+  // Sync visit status if activity has a status set
+  if (status) {
+    db.prepare('UPDATE visits SET status=? WHERE id=?').run(status, activity.visit_id)
+  }
 
   res.json({ ok: true })
 })
