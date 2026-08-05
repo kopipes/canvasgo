@@ -45,6 +45,13 @@ export default defineConfig({
     })
   ],
   server: {
-    headers: {}
+    headers: {},
+    proxy: {
+      '/api': {
+        target: 'https://cg.devop.my.id',
+        changeOrigin: true,
+        secure: true,
+      }
+    }
   }
 })

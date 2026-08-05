@@ -45,7 +45,7 @@ export default function RepDashboard() {
         className="btn-primary flex items-center justify-center gap-2 mb-5"
       >
         <PlusCircle size={20} />
-        Catat Kunjungan Baru
+        Tambah Prospek Baru
       </button>
 
       {/* Date filter */}

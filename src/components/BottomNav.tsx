@@ -12,7 +12,7 @@ export default function BottomNav({ role }: Props) {
 
   const repLinks = [
     { to: '/rep', label: 'Beranda', icon: Home, end: true },
-    { to: '/rep/new', label: 'Catat', icon: PlusCircle, end: false },
+    { to: '/rep/new', label: 'Prospek', icon: PlusCircle, end: false },
     { to: '/rep/activities', label: 'Aktivitas', icon: List, end: false },
     { to: '/profile', label: 'Profil', icon: UserCircle, end: false },
   ]
