@@ -50,7 +50,7 @@ export default function ManagerVisitsPage() {
     <div className="pb-4">
       <div className="px-4 pt-6">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-black text-gray-900">Semua Visit</h1>
+        <h1 className="text-2xl font-black text-gray-900">Semua Aktivitas</h1>
         <div className="flex items-center gap-2">
           <UserBadge />
           <button
