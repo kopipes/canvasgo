@@ -2,8 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { createVisit, getProducts } from '@/db'
-import { Product, VisitStatus } from '@/types'
-import { VISIT_STATUSES, STATUS_LABELS, compressImage } from '@/utils'
+import { Product } from '@/types'
+import { compressImage } from '@/utils'
 import { Camera, X, ChevronLeft, MapPin } from 'lucide-react'
 
 export default function NewVisitPage() {
@@ -22,9 +22,7 @@ export default function NewVisitPage() {
     pic_email: '',
     existing_system: '',
     website: '',
-    status: 'perkenalan' as VisitStatus,
     interested: 0,
-    next_follow_up: '',
     notes: '',
     selectedProducts: [] as string[],
     photo: '',
@@ -86,9 +84,9 @@ export default function NewVisitPage() {
         products: JSON.stringify(form.selectedProducts),
         existing_system: form.existing_system.trim(),
         website: form.website.trim(),
-        status: form.status,
+        status: 'new',
         interested: form.interested,
-        next_follow_up: form.next_follow_up,
+        next_follow_up: '',
         notes: form.notes.trim(),
         photo: form.photo,
         lat: form.lat,
@@ -110,7 +108,10 @@ export default function NewVisitPage() {
         <button onClick={() => navigate(-1)} className="p-1 -ml-1 text-gray-600">
           <ChevronLeft size={24} />
         </button>
-        <h1 className="text-lg font-bold text-gray-900">Catat Kunjungan</h1>
+        <div>
+          <h1 className="text-lg font-bold text-gray-900">Tambah Prospek</h1>
+          <p className="text-xs text-gray-400">Data awal sebelum kunjungan pertama</p>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="px-4 pt-4 space-y-4">
@@ -118,27 +119,37 @@ export default function NewVisitPage() {
         <div>
           {form.photo ? (
             <div className="relative">
-              <img src={form.photo} alt="Foto kunjungan" className="w-full h-48 object-cover rounded-2xl" />
-              <button
-                type="button"
-                onClick={() => set('photo', '')}
-                className="absolute top-2 right-2 bg-black/50 rounded-full p-1 text-white"
-              >
+              <img src={form.photo} alt="Foto" className="w-full h-48 object-cover rounded-2xl" />
+              <button type="button" onClick={() => set('photo', '')}
+                className="absolute top-2 right-2 bg-black/50 rounded-full p-1 text-white">
                 <X size={16} />
               </button>
             </div>
           ) : (
-            <button
-              type="button"
-              onClick={() => fileRef.current?.click()}
-              className="w-full h-40 border-2 border-dashed border-gray-300 rounded-2xl flex flex-col items-center justify-center gap-2 text-gray-400 bg-gray-50"
-            >
-              <Camera size={32} />
-              <span className="text-sm font-medium">Tambah Foto</span>
+            <button type="button" onClick={() => fileRef.current?.click()}
+              className="w-full h-36 border-2 border-dashed border-gray-300 rounded-2xl flex flex-col items-center justify-center gap-2 text-gray-400 bg-gray-50">
+              <Camera size={28} />
+              <span className="text-sm font-medium">Tambah Foto (opsional)</span>
             </button>
           )}
           <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handlePhoto} />
         </div>
+
+        {/* Tertarik toggle — prominent at top */}
+        <button type="button" onClick={() => set('interested', form.interested ? 0 : 1)}
+          className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl2 border-2 transition-all ${
+            form.interested ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-200 bg-white text-gray-500'
+          }`}>
+          <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+            form.interested ? 'border-green-500 bg-green-500' : 'border-gray-300'
+          }`}>
+            {form.interested ? <span className="text-white text-xs font-bold">✓</span> : null}
+          </div>
+          <div className="text-left">
+            <p className="font-semibold text-sm">Tertarik</p>
+            <p className="text-xs opacity-70">Prospek tertarik dengan produk kita</p>
+          </div>
+        </button>
 
         {/* Location */}
         <div>
@@ -166,16 +177,12 @@ export default function NewVisitPage() {
             <label className="label">Produk yang Ditawarkan</label>
             <div className="flex flex-wrap gap-2">
               {products.map((p) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={() => toggleProduct(p.name)}
+                <button key={p.id} type="button" onClick={() => toggleProduct(p.name)}
                   className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
                     form.selectedProducts.includes(p.name)
                       ? 'bg-primary-600 text-white border-primary-600'
                       : 'bg-white text-gray-600 border-gray-300'
-                  }`}
-                >
+                  }`}>
                   {p.name}
                 </button>
               ))}
@@ -195,55 +202,12 @@ export default function NewVisitPage() {
           <input className="input-field" type="url" placeholder="https://..." value={form.website} onChange={(e) => set('website', e.target.value)} />
         </div>
 
-        {/* Status */}
-        <div>
-          <label className="label">Status Kunjungan <span className="text-red-500">*</span></label>
-          <select className="input-field" value={form.status} onChange={(e) => set('status', e.target.value as VisitStatus)}>
-            {VISIT_STATUSES.map((s) => (
-              <option key={s} value={s}>{STATUS_LABELS[s]}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* Next follow up */}
-        {(form.status === 'follow_up' || form.status === 'propose') && (
-          <div>
-            <label className="label">Jadwal Follow Up</label>
-            <input className="input-field" type="date" value={form.next_follow_up} onChange={(e) => set('next_follow_up', e.target.value)} />
-          </div>
-        )}
-
-        {/* Tertarik */}
-        <button
-          type="button"
-          onClick={() => set('interested', form.interested ? 0 : 1)}
-          className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl2 border-2 transition-all ${
-            form.interested
-              ? 'border-green-500 bg-green-50 text-green-700'
-              : 'border-gray-200 bg-white text-gray-500'
-          }`}
-        >
-          <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-            form.interested ? 'border-green-500 bg-green-500' : 'border-gray-300'
-          }`}>
-            {form.interested ? <span className="text-white text-xs font-bold">✓</span> : null}
-          </div>
-          <div className="text-left">
-            <p className="font-semibold text-sm">Tertarik</p>
-            <p className="text-xs opacity-70">Centang jika prospek tertarik dengan produk</p>
-          </div>
-        </button>
-
         {/* Notes */}
         <div>
           <label className="label">Catatan</label>
-          <textarea
-            className="input-field resize-none"
-            rows={3}
+          <textarea className="input-field resize-none" rows={3}
             placeholder="cth. Diminta kirim Company Profile dahulu ke email."
-            value={form.notes}
-            onChange={(e) => set('notes', e.target.value)}
-          />
+            value={form.notes} onChange={(e) => set('notes', e.target.value)} />
         </div>
 
         {/* GPS */}
@@ -255,7 +219,7 @@ export default function NewVisitPage() {
         </div>
 
         <button type="submit" className="btn-primary" disabled={saving}>
-          {saving ? 'Menyimpan...' : 'Simpan Kunjungan'}
+          {saving ? 'Menyimpan...' : 'Simpan Prospek'}
         </button>
       </form>
     </div>

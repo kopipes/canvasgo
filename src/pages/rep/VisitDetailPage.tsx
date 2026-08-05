@@ -4,7 +4,7 @@ import { useAuth } from '@/context/AuthContext'
 import { getVisitById, deleteVisit, updateVisit, getProducts } from '@/db'
 import { Visit, Product, VisitStatus } from '@/types'
 import { STATUS_LABELS, STATUS_COLORS, VISIT_STATUSES, formatDateTime, formatDate, compressImage } from '@/utils'
-import { ChevronLeft, Trash2, Phone, Mail, Globe, MapPin, Calendar, Pencil, Check, X, Camera } from 'lucide-react'
+import { ChevronLeft, Trash2, Phone, Mail, Globe, MapPin, Calendar, Pencil, Check, X, Camera, PlayCircle } from 'lucide-react'
 import CanvassingActivities from '@/components/CanvassingActivities'
 import PhotoModal from '@/components/PhotoModal'
 
@@ -40,7 +40,7 @@ export default function VisitDetailPage() {
       pic_email: visit.pic_email,
       existing_system: visit.existing_system,
       website: visit.website,
-      status: visit.status,
+      status: visit.status === 'new' ? 'perkenalan' : visit.status,
       interested: visit.interested ?? 0,
       next_follow_up: visit.next_follow_up,
       notes: visit.notes,
@@ -164,6 +164,17 @@ export default function VisitDetailPage() {
                 <span className="text-sm text-gray-400">{formatDateTime(visit.created_at)}</span>
               </div>
             </div>
+
+            {/* Mulai Canvassing button — only for new/prospect status */}
+            {visit.status === 'new' && canEdit && !editing && (
+              <button
+                onClick={startEdit}
+                className="w-full flex items-center justify-center gap-2 bg-primary-600 text-white font-semibold py-3 rounded-xl2 shadow-soft active:opacity-90 transition-all"
+              >
+                <PlayCircle size={20} />
+                Mulai Canvassing Pertama
+              </button>
+            )}
             {user?.role !== 'rep' && visit.user_name && (
               <div className="card bg-primary-50 border-primary-100">
                 <p className="text-xs text-primary-600 font-medium">Sales Rep</p>

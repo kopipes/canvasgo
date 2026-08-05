@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getVisits, getUsers } from '@/db'
 import { Visit, User, VisitStatus } from '@/types'
-import { STATUS_LABELS, STATUS_COLORS, VISIT_STATUSES, formatDateTime } from '@/utils'
+import { STATUS_LABELS, STATUS_COLORS, ALL_VISIT_STATUSES, formatDateTime } from '@/utils'
 import { Search, ChevronRight, MapPin, Filter, ChevronLeft } from 'lucide-react'
 import UserBadge from '@/components/UserBadge'
 import PhotoModal from '@/components/PhotoModal'
@@ -91,7 +91,7 @@ export default function ManagerVisitsPage() {
             <label className="label">Status</label>
             <select className="input-field" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value as VisitStatus | '')}>
               <option value="">Semua Status</option>
-              {VISIT_STATUSES.map((s) => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
+              {ALL_VISIT_STATUSES.map((s) => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
             </select>
           </div>
           <div className="grid grid-cols-2 gap-3">

@@ -1,6 +1,7 @@
 import { VisitStatus } from '@/types'
 
 export const STATUS_LABELS: Record<VisitStatus, string> = {
+  new:           'Prospect',
   perkenalan:    'Perkenalan',
   share_proposal:'Share Proposal',
   propose:       'Propose',
@@ -11,6 +12,7 @@ export const STATUS_LABELS: Record<VisitStatus, string> = {
 }
 
 export const STATUS_COLORS: Record<VisitStatus, string> = {
+  new:           'bg-sky-100 text-sky-700',
   perkenalan:    'bg-gray-100 text-gray-700',
   share_proposal:'bg-blue-100 text-blue-700',
   propose:       'bg-purple-100 text-purple-700',
@@ -20,6 +22,7 @@ export const STATUS_COLORS: Record<VisitStatus, string> = {
   lost:          'bg-red-100 text-red-700',
 }
 
+// Pipeline statuses (excludes 'new' prospect stage)
 export const VISIT_STATUSES: VisitStatus[] = [
   'perkenalan',
   'share_proposal',
@@ -28,6 +31,12 @@ export const VISIT_STATUSES: VisitStatus[] = [
   'follow_up',
   'closing',
   'lost',
+]
+
+// All statuses including prospect
+export const ALL_VISIT_STATUSES: VisitStatus[] = [
+  'new',
+  ...VISIT_STATUSES,
 ]
 
 export function formatDate(iso: string): string {
