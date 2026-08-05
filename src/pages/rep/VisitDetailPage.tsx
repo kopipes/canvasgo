@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { getVisitById, deleteVisit, updateVisit } from '@/db'
 import { Visit, VisitStatus } from '@/types'
-import { STATUS_LABELS, STATUS_COLORS, VISIT_STATUSES, formatDateTime, formatDate } from '@/utils'
+import { STATUS_LABELS, STATUS_COLORS, VISIT_STATUSES, ALL_VISIT_STATUSES, formatDateTime, formatDate } from '@/utils'
 import { ChevronLeft, Trash2, Phone, Mail, Globe, MapPin, Calendar, Pencil, Check, X, PlayCircle } from 'lucide-react'
 import CanvassingActivities from '@/components/CanvassingActivities'
 import ProductSelector, { encodeProducts, decodeProducts, getProductNames, ProductEntry } from '@/components/ProductSelector'
@@ -266,7 +266,7 @@ export default function VisitDetailPage() {
           <div>
             <label className="label">Status</label>
             <select className="input-field" value={form.status ?? 'in_progress'} onChange={e => set('status', e.target.value)}>
-              {VISIT_STATUSES.map(s => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
+              {(visit.status === 'new' ? ALL_VISIT_STATUSES : VISIT_STATUSES).map(s => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
             </select>
           </div>
           <button
