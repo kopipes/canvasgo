@@ -94,7 +94,7 @@ export async function deleteVisit(id: number): Promise<void> {
 
 // ─── STATS ───────────────────────────────────────────────────────────────────
 export async function getDashboardStats(userId?: number, dateFrom?: string, dateTo?: string): Promise<{
-  total: number; interested: number; follow_up: number; closed: number; this_week: number
+  total: number; total_leads: number; total_visited: number; interested: number; follow_up: number; closed: number; this_week: number
 }> {
   const params = new URLSearchParams()
   if (userId) params.set('userId', String(userId))

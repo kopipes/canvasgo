@@ -107,6 +107,8 @@ router.get('/stats/summary', requireAuth, (req, res) => {
   const row = db.prepare(`
     SELECT
       COUNT(*) as total,
+      SUM(CASE WHEN status='new' THEN 1 ELSE 0 END) as total_leads,
+      SUM(CASE WHEN status!='new' THEN 1 ELSE 0 END) as total_visited,
       SUM(CASE WHEN interested=1 THEN 1 ELSE 0 END) as interested,
       SUM(CASE WHEN status='follow_up' THEN 1 ELSE 0 END) as follow_up,
       SUM(CASE WHEN status='closing' THEN 1 ELSE 0 END) as closed,
@@ -116,6 +118,8 @@ router.get('/stats/summary', requireAuth, (req, res) => {
 
   res.json({
     total: row.total || 0,
+    total_leads: row.total_leads || 0,
+    total_visited: row.total_visited || 0,
     interested: row.interested || 0,
     follow_up: row.follow_up || 0,
     closed: row.closed || 0,

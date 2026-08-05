@@ -3,19 +3,31 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { getDashboardStats, getUsers, getFollowUpSummary, FollowUpSummaryItem } from '@/db'
 import { User } from '@/types'
-import { TrendingUp, Clock, CheckCircle, Users, AlertCircle, X, CalendarCheck, ChevronRight } from 'lucide-react'
+import { TrendingUp, Clock, CheckCircle, Users, AlertCircle, X, CalendarCheck, ChevronRight, MapPin } from 'lucide-react'
 import UserBadge from '@/components/UserBadge'
 import { STATUS_LABELS, STATUS_COLORS, formatDate } from '@/utils'
 
 interface Stats {
   total: number
+  total_leads: number
+  total_visited: number
   interested: number
   follow_up: number
   closed: number
   this_week: number
 }
 
-const EMPTY_STATS: Stats = { total: 0, interested: 0, follow_up: 0, closed: 0, this_week: 0 }
+const EMPTY_STATS: Stats = { total: 0, total_leads: 0, total_visited: 0, interested: 0, follow_up: 0, closed: 0, this_week: 0 }
+
+const StatCard = ({ icon: Icon, iconClass, label, value }: { icon: React.ElementType, iconClass: string, label: string, value: number }) => (
+  <div className="card p-3">
+    <div className="flex items-center gap-1.5 mb-1">
+      <Icon size={13} className={iconClass} />
+      <span className="text-xs text-gray-500 leading-tight">{label}</span>
+    </div>
+    <p className="text-2xl font-black text-gray-900">{value}</p>
+  </div>
+)
 
 export default function ManagerDashboard() {
   const { user } = useAuth()
@@ -77,36 +89,14 @@ export default function ManagerDashboard() {
         </div>
       </div>
 
-      {/* Overall stats */}
-      <div className="grid grid-cols-2 gap-3 mb-6">
-        <div className="card">
-          <div className="flex items-center gap-2 mb-1">
-            <TrendingUp size={16} className="text-primary-600" />
-            <span className="text-xs text-gray-500">Total Visit</span>
-          </div>
-          <p className="text-3xl font-black text-gray-900">{stats.total}</p>
-        </div>
-        <div className="card">
-          <div className="flex items-center gap-2 mb-1">
-            <Clock size={16} className="text-yellow-500" />
-            <span className="text-xs text-gray-500">Last 7 Days</span>
-          </div>
-          <p className="text-3xl font-black text-gray-900">{stats.this_week}</p>
-        </div>
-        <div className="card">
-          <div className="flex items-center gap-2 mb-1">
-            <AlertCircle size={16} className="text-green-500" />
-            <span className="text-xs text-gray-500">Tertarik</span>
-          </div>
-          <p className="text-3xl font-black text-gray-900">{stats.interested}</p>
-        </div>
-        <div className="card">
-          <div className="flex items-center gap-2 mb-1">
-            <CheckCircle size={16} className="text-blue-500" />
-            <span className="text-xs text-gray-500">Closing</span>
-          </div>
-          <p className="text-3xl font-black text-gray-900">{stats.closed}</p>
-        </div>
+      {/* Overall stats — 3 columns */}
+      <div className="grid grid-cols-3 gap-2 mb-6">
+        <StatCard icon={Users} iconClass="text-sky-500" label="Total Leads" value={stats.total_leads} />
+        <StatCard icon={MapPin} iconClass="text-primary-600" label="Total Visit" value={stats.total_visited} />
+        <StatCard icon={Clock} iconClass="text-yellow-500" label="Last 7 Days" value={stats.this_week} />
+        <StatCard icon={AlertCircle} iconClass="text-green-500" label="Tertarik" value={stats.interested} />
+        <StatCard icon={CheckCircle} iconClass="text-blue-500" label="Follow Up" value={stats.follow_up} />
+        <StatCard icon={TrendingUp} iconClass="text-purple-500" label="Closing" value={stats.closed} />
       </div>
 
       {/* Per rep */}
