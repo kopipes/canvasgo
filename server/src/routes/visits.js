@@ -110,8 +110,8 @@ router.get('/stats/summary', requireAuth, (req, res) => {
       SUM(CASE WHEN status='new' THEN 1 ELSE 0 END) as total_leads,
       SUM(CASE WHEN status!='new' THEN 1 ELSE 0 END) as total_visited,
       SUM(CASE WHEN interested=1 THEN 1 ELSE 0 END) as interested,
-      SUM(CASE WHEN status='follow_up' THEN 1 ELSE 0 END) as follow_up,
-      SUM(CASE WHEN status='closing' THEN 1 ELSE 0 END) as closed,
+      SUM(CASE WHEN status='in_progress' THEN 1 ELSE 0 END) as follow_up,
+      SUM(CASE WHEN status='close_deal' THEN 1 ELSE 0 END) as closed,
       SUM(CASE WHEN date(created_at) >= date('now','-7 days') THEN 1 ELSE 0 END) as this_week
     FROM visits ${where}
   `).get(...params)

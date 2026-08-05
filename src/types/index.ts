@@ -9,7 +9,7 @@ export interface User {
   created_at: string
 }
 
-export type VisitStatus = 'new' | 'perkenalan' | 'share_proposal' | 'propose' | 'on_discus' | 'follow_up' | 'closing' | 'lost'
+export type VisitStatus = 'new' | 'in_progress' | 'close_deal' | 'lost'
 
 export type LeadSource = 'referral' | 'canvassing' | 'linkedin' | 'relasi' | 'inbound'
 

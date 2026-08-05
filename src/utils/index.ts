@@ -1,42 +1,32 @@
 import { VisitStatus } from '@/types'
 
 export const STATUS_LABELS: Record<VisitStatus, string> = {
-  new:           'Prospect',
-  perkenalan:    'Perkenalan',
-  share_proposal:'Share Proposal',
-  propose:       'Propose',
-  on_discus:     'On Discus',
-  follow_up:     'Follow Up',
-  closing:       'Closing',
-  lost:          'Lost',
+  new:        'New',
+  in_progress:'In Progress',
+  close_deal: 'Close Deal',
+  lost:       'Lost',
 }
 
 export const STATUS_COLORS: Record<VisitStatus, string> = {
-  new:           'bg-sky-100 text-sky-700',
-  perkenalan:    'bg-gray-100 text-gray-700',
-  share_proposal:'bg-blue-100 text-blue-700',
-  propose:       'bg-purple-100 text-purple-700',
-  on_discus:     'bg-yellow-100 text-yellow-800',
-  follow_up:     'bg-orange-100 text-orange-700',
-  closing:       'bg-green-100 text-green-800',
-  lost:          'bg-red-100 text-red-700',
+  new:        'bg-sky-100 text-sky-700',
+  in_progress:'bg-yellow-100 text-yellow-800',
+  close_deal: 'bg-green-100 text-green-800',
+  lost:       'bg-red-100 text-red-700',
 }
 
-// Pipeline statuses (excludes 'new' prospect stage)
+// Pipeline statuses (for canvassing stage selector — excludes 'new' prospect stage)
 export const VISIT_STATUSES: VisitStatus[] = [
-  'perkenalan',
-  'share_proposal',
-  'propose',
-  'on_discus',
-  'follow_up',
-  'closing',
+  'in_progress',
+  'close_deal',
   'lost',
 ]
 
 // All statuses including prospect
 export const ALL_VISIT_STATUSES: VisitStatus[] = [
   'new',
-  ...VISIT_STATUSES,
+  'in_progress',
+  'close_deal',
+  'lost',
 ]
 
 export function formatDate(iso: string): string {

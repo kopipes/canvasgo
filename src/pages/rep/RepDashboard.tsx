@@ -86,8 +86,8 @@ export default function RepDashboard() {
         <StatCard icon={MapPin} iconClass="text-primary-600" label="Total Visit" value={stats.total_visited} />
         <StatCard icon={Clock} iconClass="text-yellow-500" label="Last 7 Days" value={stats.this_week} />
         <StatCard icon={AlertCircle} iconClass="text-green-500" label="Tertarik" value={stats.interested} />
-        <StatCard icon={CheckCircle} iconClass="text-blue-500" label="Follow Up" value={stats.follow_up} />
-        <StatCard icon={TrendingUp} iconClass="text-purple-500" label="Closing" value={stats.closed} />
+        <StatCard icon={CheckCircle} iconClass="text-blue-500" label="In Progress" value={stats.follow_up} />
+        <StatCard icon={TrendingUp} iconClass="text-purple-500" label="Close Deal" value={stats.closed} />
       </div>
       </div>
     </div>

@@ -36,7 +36,7 @@ export default function VisitDetailPage() {
       pic_email: visit.pic_email,
       existing_system: visit.existing_system,
       website: visit.website,
-      status: visit.status === 'new' ? 'perkenalan' : visit.status,
+      status: visit.status === 'new' ? 'in_progress' : visit.status,
       interested: visit.interested ?? 0,
       next_follow_up: visit.next_follow_up,
       notes: visit.notes,
@@ -269,12 +269,6 @@ export default function VisitDetailPage() {
               {VISIT_STATUSES.map(s => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
             </select>
           </div>
-          {(form.status === 'follow_up' || form.status === 'propose') && (
-            <div>
-              <label className="label">Jadwal Follow Up</label>
-              <input className="input-field" type="date" value={form.next_follow_up ?? ''} onChange={e => set('next_follow_up', e.target.value)} />
-            </div>
-          )}
           <button
             type="button"
             onClick={() => set('interested', form.interested ? 0 : 1)}
