@@ -20,7 +20,7 @@ export default function BottomNav({ role }: Props) {
   const managerLinks = [
     { to: '/manager', label: 'Dashboard', icon: BarChart2, end: true },
     { to: '/manager/visits', label: 'Semua Aktivitas', icon: List, end: false },
-    { to: '/admin/users', label: 'Pengguna', icon: Users, end: false },
+    { to: '/profile', label: 'Profil', icon: UserCircle, end: false },
   ]
 
   const adminLinks = [
