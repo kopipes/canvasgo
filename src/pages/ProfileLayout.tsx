@@ -3,7 +3,8 @@ import { useAuth } from '@/context/AuthContext'
 import BottomNav from '@/components/BottomNav'
 
 export default function ProfileLayout() {
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
+  if (loading) return <div className="flex items-center justify-center min-h-screen bg-primary-600"><div className="text-white text-xl font-bold">CanvasGo</div></div>
   if (!user) return <Navigate to="/login" replace />
 
   return (
