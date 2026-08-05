@@ -123,4 +123,40 @@ router.get('/stats/summary', requireAuth, (req, res) => {
   })
 })
 
+// GET /api/visits/followup-summary
+router.get('/followup-summary', requireAuth, (req, res) => {
+  const { userId, dateFrom, dateTo } = req.query
+  const effectiveUserId = req.user.role === 'rep' ? req.user.id : (userId ? Number(userId) : null)
+
+  const conditions = ['a.id IS NOT NULL']
+  const params = []
+
+  if (effectiveUserId) { conditions.push('v.user_id = ?'); params.push(effectiveUserId) }
+  if (dateFrom) { conditions.push("date(v.created_at) >= ?"); params.push(dateFrom) }
+  if (dateTo) { conditions.push("date(v.created_at) <= ?"); params.push(dateTo) }
+
+  const where = `WHERE ${conditions.join(' AND ')}`
+
+  const rows = db.prepare(`
+    SELECT
+      v.id,
+      v.location_name,
+      v.pic_name,
+      v.status,
+      v.interested,
+      v.user_id,
+      u.name as user_name,
+      COUNT(a.id) as activity_count,
+      MAX(a.tanggal) as last_activity_date
+    FROM visits v
+    LEFT JOIN users u ON v.user_id = u.id
+    LEFT JOIN canvassing_activities a ON a.visit_id = v.id
+    ${where}
+    GROUP BY v.id
+    ORDER BY last_activity_date DESC
+  `).all(...params)
+
+  res.json(rows)
+})
+
 module.exports = router

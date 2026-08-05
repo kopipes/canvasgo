@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
-import { getDashboardStats, getUsers } from '@/db'
+import { getDashboardStats, getUsers, getFollowUpSummary, FollowUpSummaryItem } from '@/db'
 import { User } from '@/types'
-import { TrendingUp, Clock, CheckCircle, Users, AlertCircle, X } from 'lucide-react'
+import { TrendingUp, Clock, CheckCircle, Users, AlertCircle, X, CalendarCheck, ChevronRight } from 'lucide-react'
 import UserBadge from '@/components/UserBadge'
+import { STATUS_LABELS, STATUS_COLORS, formatDate } from '@/utils'
 
 interface Stats {
   total: number
@@ -17,14 +19,17 @@ const EMPTY_STATS: Stats = { total: 0, interested: 0, follow_up: 0, closed: 0, t
 
 export default function ManagerDashboard() {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [stats, setStats] = useState<Stats>(EMPTY_STATS)
   const [reps, setReps] = useState<User[]>([])
   const [repStats, setRepStats] = useState<Record<number, Stats>>({})
+  const [followUps, setFollowUps] = useState<FollowUpSummaryItem[]>([])
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
 
   const loadStats = (from: string, to: string) => {
     getDashboardStats(undefined, from || undefined, to || undefined).then(setStats)
+    getFollowUpSummary(undefined, from || undefined, to || undefined).then(setFollowUps)
     getUsers().then(async (users) => {
       const repList = users.filter((u) => u.role === 'rep')
       setReps(repList)
@@ -138,6 +143,50 @@ export default function ManagerDashboard() {
         })}
       </div>
       </div>
+
+      {/* Follow Up History */}
+      {followUps.length > 0 && (
+        <div className="px-4 mt-2 pb-4">
+          <div className="flex items-center gap-2 mb-3">
+            <CalendarCheck size={16} className="text-primary-600" />
+            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Riwayat Follow Up</h2>
+            <span className="badge bg-primary-100 text-primary-700">{followUps.length}</span>
+          </div>
+          <div className="space-y-2">
+            {followUps.map((v) => (
+              <button
+                key={v.id}
+                className="card w-full text-left"
+                onClick={() => navigate(`/manager/visit/${v.id}`)}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-semibold text-gray-900 truncate">{v.location_name}</p>
+                      {v.interested ? (
+                        <span className="badge bg-green-100 text-green-700 text-xs">Tertarik</span>
+                      ) : null}
+                    </div>
+                    <p className="text-xs text-gray-500 mt-0.5">{v.pic_name} · {v.user_name}</p>
+                    <div className="flex items-center gap-3 mt-1 flex-wrap">
+                      <span className={`badge text-xs ${STATUS_COLORS[v.status as keyof typeof STATUS_COLORS] ?? 'bg-gray-100 text-gray-600'}`}>
+                        {STATUS_LABELS[v.status as keyof typeof STATUS_LABELS] ?? v.status}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        Kunjungan ke-<span className="font-bold text-primary-600">{v.activity_count}</span>
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        Terakhir: {formatDate(v.last_activity_date)}
+                      </span>
+                    </div>
+                  </div>
+                  <ChevronRight size={16} className="text-gray-300 flex-shrink-0 mt-1" />
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

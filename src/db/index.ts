@@ -104,6 +104,27 @@ export async function getDashboardStats(userId?: number, dateFrom?: string, date
   return api.get(`/visits/stats/summary${qs ? '?' + qs : ''}`)
 }
 
+export interface FollowUpSummaryItem {
+  id: number
+  location_name: string
+  pic_name: string
+  status: string
+  interested: number
+  user_id: number
+  user_name: string
+  activity_count: number
+  last_activity_date: string
+}
+
+export async function getFollowUpSummary(userId?: number, dateFrom?: string, dateTo?: string): Promise<FollowUpSummaryItem[]> {
+  const params = new URLSearchParams()
+  if (userId) params.set('userId', String(userId))
+  if (dateFrom) params.set('dateFrom', dateFrom)
+  if (dateTo) params.set('dateTo', dateTo)
+  const qs = params.toString()
+  return api.get(`/visits/followup-summary${qs ? '?' + qs : ''}`)
+}
+
 // ─── CANVASSING ACTIVITIES ───────────────────────────────────────────────────
 export async function getActivities(visitId: number): Promise<CanvassingActivity[]> {
   return api.get(`/activities?visitId=${visitId}`)
