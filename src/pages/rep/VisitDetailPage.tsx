@@ -4,6 +4,7 @@ import { useAuth } from '@/context/AuthContext'
 import { getVisitById, deleteVisit, updateVisit } from '@/db'
 import { Visit, VisitStatus } from '@/types'
 import { STATUS_LABELS, STATUS_COLORS, VISIT_STATUSES, ALL_VISIT_STATUSES, formatDateTime, formatDate } from '@/utils'
+import { LEAD_SOURCE_LABELS } from '@/types'
 import { ChevronLeft, Trash2, Phone, Mail, Globe, MapPin, Calendar, Pencil, Check, X, PlayCircle } from 'lucide-react'
 import CanvassingActivities from '@/components/CanvassingActivities'
 import ProductSelector, { encodeProducts, decodeProducts, getProductNames, ProductEntry } from '@/components/ProductSelector'
@@ -31,6 +32,8 @@ export default function VisitDetailPage() {
     if (!visit) return
     setForm({
       location_name: visit.location_name,
+      address: visit.address ?? '',
+      lead_source: visit.lead_source ?? '',
       pic_name: visit.pic_name,
       pic_phone: visit.pic_phone,
       pic_email: visit.pic_email,
@@ -59,6 +62,8 @@ export default function VisitDetailPage() {
     try {
       await updateVisit(visit.id, {
         location_name: form.location_name.trim(),
+        address: (form.address ?? '').trim(),
+        lead_source: form.lead_source ?? '',
         pic_name: form.pic_name!.trim(),
         pic_phone: form.pic_phone ?? '',
         pic_email: form.pic_email ?? '',
@@ -151,6 +156,22 @@ export default function VisitDetailPage() {
                 Mulai Canvassing Pertama
               </button>
             )}
+
+            {/* Lead source */}
+            {visit.lead_source && (
+              <div className="card">
+                <p className="text-xs text-gray-500 mb-1">Leads Berasal Dari</p>
+                <span className="badge bg-primary-100 text-primary-700">{LEAD_SOURCE_LABELS[visit.lead_source as keyof typeof LEAD_SOURCE_LABELS] ?? visit.lead_source}</span>
+              </div>
+            )}
+
+            {/* Address */}
+            {visit.address && (
+              <div className="card">
+                <p className="text-xs text-gray-500 mb-1">Alamat</p>
+                <p className="text-gray-900 text-sm">{visit.address}</p>
+              </div>
+            )}
             {user?.role !== 'rep' && visit.user_name && (
               <div className="card bg-primary-50 border-primary-100">
                 <p className="text-xs text-primary-600 font-medium">Sales Rep</p>
@@ -230,9 +251,32 @@ export default function VisitDetailPage() {
       {/* ── EDIT MODE ── */}
       {editing && (
         <div className="px-4 pt-4 space-y-4">
+
+          {/* Leads Berasal Dari — shown for all visits */}
           <div>
-            <label className="label">Nama Lokasi <span className="text-red-500">*</span></label>
+            <label className="label">Leads Berasal Dari</label>
+            <div className="flex flex-wrap gap-2">
+              {(Object.keys(LEAD_SOURCE_LABELS) as Array<keyof typeof LEAD_SOURCE_LABELS>).map(s => (
+                <button key={s} type="button" onClick={() => set('lead_source', form.lead_source === s ? '' : s)}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+                    form.lead_source === s
+                      ? 'bg-primary-600 text-white border-primary-600'
+                      : 'bg-white text-gray-600 border-gray-300'
+                  }`}>
+                  {LEAD_SOURCE_LABELS[s]}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="label">Perusahaan <span className="text-red-500">*</span></label>
             <input className="input-field" value={form.location_name ?? ''} onChange={e => set('location_name', e.target.value)} />
+          </div>
+
+          <div>
+            <label className="label">Alamat</label>
+            <textarea className="input-field resize-none" rows={2} value={form.address ?? ''} onChange={e => set('address', e.target.value)} />
           </div>
           <div>
             <label className="label">Nama PIC <span className="text-red-500">*</span></label>
