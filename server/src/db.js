@@ -45,6 +45,8 @@ db.exec(`
     website         TEXT NOT NULL DEFAULT '',
     status          TEXT NOT NULL DEFAULT 'follow_up',
     interested      INTEGER NOT NULL DEFAULT 0,
+    address         TEXT NOT NULL DEFAULT '',
+    lead_source     TEXT NOT NULL DEFAULT '',
     next_follow_up  TEXT NOT NULL DEFAULT '',
     notes           TEXT NOT NULL DEFAULT '',
     photo           TEXT NOT NULL DEFAULT '',
@@ -67,12 +69,20 @@ db.exec(`
 
 // ─── Migrations ───────────────────────────────────────────────────────────────
 function migrate() {
-  // Add interested column if it doesn't exist (added after initial deploy)
   const cols = db.prepare("PRAGMA table_info(visits)").all()
-  const hasInterested = cols.some(c => c.name === 'interested')
-  if (!hasInterested) {
+  const colNames = cols.map(c => c.name)
+
+  if (!colNames.includes('interested')) {
     db.prepare("ALTER TABLE visits ADD COLUMN interested INTEGER NOT NULL DEFAULT 0").run()
     console.log('Migration: added interested column to visits')
+  }
+  if (!colNames.includes('address')) {
+    db.prepare("ALTER TABLE visits ADD COLUMN address TEXT NOT NULL DEFAULT ''").run()
+    console.log('Migration: added address column to visits')
+  }
+  if (!colNames.includes('lead_source')) {
+    db.prepare("ALTER TABLE visits ADD COLUMN lead_source TEXT NOT NULL DEFAULT ''").run()
+    console.log('Migration: added lead_source column to visits')
   }
 }
 migrate()

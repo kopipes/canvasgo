@@ -1,22 +1,22 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { createVisit, getProducts } from '@/db'
-import { Product } from '@/types'
-import { compressImage } from '@/utils'
-import { Camera, X, ChevronLeft, MapPin } from 'lucide-react'
+import { Product, LeadSource, LEAD_SOURCES, LEAD_SOURCE_LABELS } from '@/types'
+import { ChevronLeft, MapPin } from 'lucide-react'
 
 export default function NewVisitPage() {
   const { user } = useAuth()
   const navigate = useNavigate()
-  const fileRef = useRef<HTMLInputElement>(null)
 
   const [products, setProducts] = useState<Product[]>([])
   const [saving, setSaving] = useState(false)
   const [locating, setLocating] = useState(false)
 
   const [form, setForm] = useState({
+    lead_source: '' as LeadSource | '',
     location_name: '',
+    address: '',
     pic_name: '',
     pic_phone: '',
     pic_email: '',
@@ -25,7 +25,6 @@ export default function NewVisitPage() {
     interested: 0,
     notes: '',
     selectedProducts: [] as string[],
-    photo: '',
     lat: null as number | null,
     lng: null as number | null,
   })
@@ -43,17 +42,6 @@ export default function NewVisitPage() {
         ? f.selectedProducts.filter((p) => p !== name)
         : [...f.selectedProducts, name],
     }))
-  }
-
-  const handlePhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    try {
-      const compressed = await compressImage(file)
-      set('photo', compressed)
-    } catch {
-      alert('Gagal memuat foto.')
-    }
   }
 
   const getLocation = () => {
@@ -78,6 +66,8 @@ export default function NewVisitPage() {
     try {
       await createVisit({
         location_name: form.location_name.trim(),
+        address: form.address.trim(),
+        lead_source: form.lead_source,
         pic_name: form.pic_name.trim(),
         pic_phone: form.pic_phone.trim(),
         pic_email: form.pic_email.trim(),
@@ -88,7 +78,7 @@ export default function NewVisitPage() {
         interested: form.interested,
         next_follow_up: '',
         notes: form.notes.trim(),
-        photo: form.photo,
+        photo: '',
         lat: form.lat,
         lng: form.lng,
       })
@@ -115,46 +105,34 @@ export default function NewVisitPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="px-4 pt-4 space-y-4">
-        {/* Photo */}
+
+        {/* Leads berasal dari */}
         <div>
-          {form.photo ? (
-            <div className="relative">
-              <img src={form.photo} alt="Foto" className="w-full h-48 object-cover rounded-2xl" />
-              <button type="button" onClick={() => set('photo', '')}
-                className="absolute top-2 right-2 bg-black/50 rounded-full p-1 text-white">
-                <X size={16} />
+          <label className="label">Leads Berasal Dari</label>
+          <div className="flex flex-wrap gap-2">
+            {LEAD_SOURCES.map((s) => (
+              <button key={s} type="button" onClick={() => set('lead_source', form.lead_source === s ? '' : s)}
+                className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+                  form.lead_source === s
+                    ? 'bg-primary-600 text-white border-primary-600'
+                    : 'bg-white text-gray-600 border-gray-300'
+                }`}>
+                {LEAD_SOURCE_LABELS[s]}
               </button>
-            </div>
-          ) : (
-            <button type="button" onClick={() => fileRef.current?.click()}
-              className="w-full h-36 border-2 border-dashed border-gray-300 rounded-2xl flex flex-col items-center justify-center gap-2 text-gray-400 bg-gray-50">
-              <Camera size={28} />
-              <span className="text-sm font-medium">Tambah Foto (opsional)</span>
-            </button>
-          )}
-          <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handlePhoto} />
+            ))}
+          </div>
         </div>
 
-        {/* Tertarik toggle — prominent at top */}
-        <button type="button" onClick={() => set('interested', form.interested ? 0 : 1)}
-          className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl2 border-2 transition-all ${
-            form.interested ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-200 bg-white text-gray-500'
-          }`}>
-          <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-            form.interested ? 'border-green-500 bg-green-500' : 'border-gray-300'
-          }`}>
-            {form.interested ? <span className="text-white text-xs font-bold">✓</span> : null}
-          </div>
-          <div className="text-left">
-            <p className="font-semibold text-sm">Tertarik</p>
-            <p className="text-xs opacity-70">Prospek tertarik dengan produk kita</p>
-          </div>
-        </button>
-
-        {/* Location */}
+        {/* Perusahaan */}
         <div>
-          <label className="label">Nama Lokasi / Toko <span className="text-red-500">*</span></label>
+          <label className="label">Perusahaan <span className="text-red-500">*</span></label>
           <input className="input-field" placeholder="cth. Apollo Wu Artisan" value={form.location_name} onChange={(e) => set('location_name', e.target.value)} required />
+        </div>
+
+        {/* Alamat */}
+        <div>
+          <label className="label">Alamat</label>
+          <textarea className="input-field resize-none" rows={2} placeholder="cth. Jl. Sudirman No. 1, Jakarta" value={form.address} onChange={(e) => set('address', e.target.value)} />
         </div>
 
         {/* PIC */}
@@ -217,6 +195,22 @@ export default function NewVisitPage() {
             {locating ? 'Mencari lokasi...' : form.lat ? `GPS: ${form.lat.toFixed(4)}, ${form.lng?.toFixed(4)}` : 'Tandai Lokasi GPS (opsional)'}
           </button>
         </div>
+
+        {/* Tertarik — paling bawah */}
+        <button type="button" onClick={() => set('interested', form.interested ? 0 : 1)}
+          className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl2 border-2 transition-all ${
+            form.interested ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-200 bg-white text-gray-500'
+          }`}>
+          <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+            form.interested ? 'border-green-500 bg-green-500' : 'border-gray-300'
+          }`}>
+            {form.interested ? <span className="text-white text-xs font-bold">✓</span> : null}
+          </div>
+          <div className="text-left">
+            <p className="font-semibold text-sm">Tertarik</p>
+            <p className="text-xs opacity-70">Prospek tertarik dengan produk kita</p>
+          </div>
+        </button>
 
         <button type="submit" className="btn-primary" disabled={saving}>
           {saving ? 'Menyimpan...' : 'Simpan Prospek'}

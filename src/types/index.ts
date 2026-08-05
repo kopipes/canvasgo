@@ -11,11 +11,25 @@ export interface User {
 
 export type VisitStatus = 'new' | 'perkenalan' | 'share_proposal' | 'propose' | 'on_discus' | 'follow_up' | 'closing' | 'lost'
 
+export type LeadSource = 'referral' | 'canvassing' | 'linkedin' | 'relasi' | 'inbound'
+
+export const LEAD_SOURCE_LABELS: Record<LeadSource, string> = {
+  referral:   'Referral',
+  canvassing: 'Canvassing',
+  linkedin:   'LinkedIn',
+  relasi:     'Relasi (dapet sendiri)',
+  inbound:    'Inbound',
+}
+
+export const LEAD_SOURCES: LeadSource[] = ['referral', 'canvassing', 'linkedin', 'relasi', 'inbound']
+
 export interface Visit {
   id: number
   user_id: number
   user_name?: string
   location_name: string
+  address: string
+  lead_source: LeadSource | ''
   pic_name: string
   pic_phone: string
   pic_email: string
