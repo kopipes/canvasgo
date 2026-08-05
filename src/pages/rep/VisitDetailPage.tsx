@@ -36,7 +36,7 @@ export default function VisitDetailPage() {
       pic_email: visit.pic_email,
       existing_system: visit.existing_system,
       website: visit.website,
-      status: visit.status === 'new' ? 'in_progress' : visit.status,
+      status: visit.status,
       interested: visit.interested ?? 0,
       next_follow_up: visit.next_follow_up,
       notes: visit.notes,
