@@ -265,7 +265,7 @@ export default function VisitDetailPage() {
           </div>
           <div>
             <label className="label">Status</label>
-            <select className="input-field" value={form.status ?? 'perkenalan'} onChange={e => set('status', e.target.value)}>
+            <select className="input-field" value={form.status ?? 'in_progress'} onChange={e => set('status', e.target.value)}>
               {VISIT_STATUSES.map(s => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
             </select>
           </div>
