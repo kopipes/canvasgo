@@ -7,6 +7,7 @@ export const STATUS_LABELS: Record<VisitStatus, string> = {
   on_discus:     'On Discus',
   follow_up:     'Follow Up',
   closing:       'Closing',
+  lost:          'Lost',
 }
 
 export const STATUS_COLORS: Record<VisitStatus, string> = {
@@ -16,6 +17,7 @@ export const STATUS_COLORS: Record<VisitStatus, string> = {
   on_discus:     'bg-yellow-100 text-yellow-800',
   follow_up:     'bg-orange-100 text-orange-700',
   closing:       'bg-green-100 text-green-800',
+  lost:          'bg-red-100 text-red-700',
 }
 
 export const VISIT_STATUSES: VisitStatus[] = [
@@ -25,6 +27,7 @@ export const VISIT_STATUSES: VisitStatus[] = [
   'on_discus',
   'follow_up',
   'closing',
+  'lost',
 ]
 
 export function formatDate(iso: string): string {
